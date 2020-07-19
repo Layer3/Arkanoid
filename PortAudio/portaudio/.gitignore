@@ -25,7 +25,6 @@ portaudio-2.0.pc
 # Compiled Dynamic libraries
 *.so
 *.dylib
-*.dll
 
 # Fortran module files
 *.mod
@@ -34,7 +33,6 @@ portaudio-2.0.pc
 *.lai
 *.la
 *.a
-*.lib
 
 # Executables
 *.exe
