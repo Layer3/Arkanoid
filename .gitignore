@@ -1,0 +1,83 @@
+
+libsndfile/bin/sndfile-metadata-set.exe
+libsndfile/bin/sndfile-metadata-get.exe
+libsndfile/bin/sndfile-info.exe
+libsndfile/bin/sndfile-convert.exe
+libsndfile/bin/sndfile-cmp.exe
+libsndfile/bin/sndfile-about.exe
+libsndfile/bin/libsndfile-1.dll
+Arkanoid/bin/x64/Debug/zlib1.dll
+Arkanoid/bin/x64/Debug/SDL2_image.dll
+Arkanoid/bin/x64/Debug/SDL2.dll
+Arkanoid/bin/x64/Debug/portaudio_x64.dll
+Arkanoid/bin/x64/Debug/libsndfile-1.dll
+Arkanoid/bin/x64/Debug/libpng16-16.dll
+Arkanoid/bin/x64/Debug/Arkanoid.exe
+Arkanoid/bin/x64/Debug/Arkanoid.ilk
+Arkanoid/bin/x64/Debug/Arkanoid.pdb
+libsndfile/bin/sndfile-play.exe
+Solution/.vs/Arkanoid Solution/v16/.suo
+Solution/.vs/Arkanoid Solution/v16/Browse.VC.db
+Solution/.vs/Arkanoid Solution/v16/Browse.VC.db-shm
+Solution/.vs/Arkanoid Solution/v16/Browse.VC.db-wal
+Solution/.vs/Arkanoid Solution/v16/Browse.VC.opendb
+Solution/.vs/Arkanoid Solution/v16/ipch/99588f7f3ae5536e.ipch
+Solution/.vs/Arkanoid Solution/v16/ipch/AutoPCH/116195ab8e9d0694/MENU.ipch
+Solution/.vs/Arkanoid Solution/v16/ipch/AutoPCH/1d421c38963001aa/ARKANOID.ipch
+Solution/.vs/Arkanoid Solution/v16/ipch/AutoPCH/20f8cf5e335cd5e/TILE.ipch
+Solution/.vs/Arkanoid Solution/v16/ipch/AutoPCH/28816c6122d063f8/PROJECTILE.ipch
+Solution/.vs/Arkanoid Solution/v16/ipch/AutoPCH/2a129f16d4bdbfae/AUDIOMANAGER.ipch
+Solution/.vs/Arkanoid Solution/v16/ipch/AutoPCH/2b3f34c3f263557e/ARKANOID.ipch
+Solution/.vs/Arkanoid Solution/v16/ipch/AutoPCH/2bb97048b917ccd2/MAIN.ipch
+Solution/.vs/Arkanoid Solution/v16/ipch/AutoPCH/3117aefe19e9698/RENDEREDOBJECT.ipch
+Solution/.vs/Arkanoid Solution/v16/ipch/AutoPCH/355f9b2e1aa9309e/MAIN.ipch
+Solution/.vs/Arkanoid Solution/v16/ipch/AutoPCH/502bbbba06e7dc7a/MAIN.ipch
+Solution/.vs/Arkanoid Solution/v16/ipch/AutoPCH/546695c582dd3fca/PLAYER.ipch
+Solution/.vs/Arkanoid Solution/v16/ipch/AutoPCH/579fbcae4dfe1362/PLAYER.ipch
+Solution/.vs/Arkanoid Solution/v16/ipch/AutoPCH/60d5947cf8cde2f1/GAME.ipch
+Solution/.vs/Arkanoid Solution/v16/ipch/AutoPCH/6cccbb2766695faf/TILE.ipch
+Solution/.vs/Arkanoid Solution/v16/ipch/AutoPCH/7e4143b57b2ff7e/AUDIOBUFFER.ipch
+Solution/.vs/Arkanoid Solution/v16/ipch/AutoPCH/85d881eb8b8a99f/MAIN.ipch
+Solution/.vs/Arkanoid Solution/v16/ipch/AutoPCH/8674e4b03bae6388/AUDIOHANDLER.ipch
+Solution/.vs/Arkanoid Solution/v16/ipch/AutoPCH/952809bd50d9f381/AUDIOMIXER.ipch
+Solution/.vs/Arkanoid Solution/v16/ipch/AutoPCH/99e0e0d319c1d02d/GAME.ipch
+Solution/.vs/Arkanoid Solution/v16/ipch/AutoPCH/9a2602e8992fb562/ARKANOID.ipch
+Solution/.vs/Arkanoid Solution/v16/ipch/AutoPCH/9b1fd78a8b555d36/PLAYER.ipch
+Solution/.vs/Arkanoid Solution/v16/ipch/AutoPCH/a996b383ff4a0e13/AUDIOMANAGER.ipch
+Solution/.vs/Arkanoid Solution/v16/ipch/AutoPCH/bcc1de6132c251d5/RENDEREDOBJECT.ipch
+Solution/.vs/Arkanoid Solution/v16/ipch/AutoPCH/bccbc1b7d7220ca1/RENDEREDOBJECT.ipch
+Solution/.vs/Arkanoid Solution/v16/ipch/AutoPCH/c302534587d659cb/TILE.ipch
+Solution/.vs/Arkanoid Solution/v16/ipch/AutoPCH/c325ebe82f6fb38b/SOUNDMIXER.ipch
+Solution/.vs/Arkanoid Solution/v16/ipch/AutoPCH/c8b79cb6e5f6fc70/AUDIOMIXER.ipch
+Solution/.vs/Arkanoid Solution/v16/ipch/AutoPCH/cc0f00eb32a83c42/PLAYINGVOICE.ipch
+Solution/.vs/Arkanoid Solution/v16/ipch/AutoPCH/cec308182801db98/MENU.ipch
+Solution/.vs/Arkanoid Solution/v16/ipch/AutoPCH/d2d0806ddb0590af/ARKANOID.ipch
+Solution/.vs/Arkanoid Solution/v16/ipch/AutoPCH/d4d6c0a42f86323c/PROJECTILE.ipch
+Solution/.vs/Arkanoid Solution/v16/ipch/AutoPCH/f67f151a12db9ca3/TILE.ipch
+Solution/x64/Debug/Arkanoid Solution.log
+Solution/x64/Debug/Arkanoid.62e94d3d.tlog/Arkanoid Solution.lastbuildstate
+Solution/x64/Debug/Arkanoid.62e94d3d.tlog/unsuccessfulbuild
+Solution/x64/Debug/Arkanoid.Build.CppClean.log
+Solution/x64/Debug/arkanoid.obj
+Solution/x64/Debug/AudioHandler.obj
+Solution/x64/Debug/audiomanager.new.obj.enc
+Solution/x64/Debug/AudioManager.obj
+Solution/x64/Debug/AudioMixer.obj
+Solution/x64/Debug/Game.obj
+Solution/x64/Debug/main.obj
+Solution/x64/Debug/Menu.obj
+Solution/x64/Debug/Player.obj
+Solution/x64/Debug/Projectile.obj
+Solution/x64/Debug/RenderedObject.obj
+Solution/x64/Debug/Tile.obj
+Solution/x64/Debug/vc142.idb
+Solution/x64/Debug/vc142.pdb
+Solution/x64/Debug/Arkanoid.62e94d3d.tlog/CL.command.1.tlog
+Solution/x64/Debug/Arkanoid.62e94d3d.tlog/CL.read.1.tlog
+Solution/x64/Debug/Arkanoid.62e94d3d.tlog/CL.write.1.tlog
+Solution/x64/Debug/Arkanoid.62e94d3d.tlog/link.command.1.tlog
+Solution/x64/Debug/Arkanoid.62e94d3d.tlog/link.read.1.tlog
+Solution/x64/Debug/Arkanoid.62e94d3d.tlog/link.write.1.tlog
+Solution/Arkanoid Solution.vcxproj
+Solution/Arkanoid Solution.vcxproj.filters
+Solution/Arkanoid Solution.vcxproj.user

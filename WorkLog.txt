@@ -1,0 +1,94 @@
+17.07
+    20:00-21:00
+        Setting up basic project with SDL2 and compiling a hello world
+        Rough Brainstorming for the scope:            
+            Menu:
+                - Play/Resume
+                - Options
+                    - Sound Volume (SFX/Music(?))
+                    - (Window Size)
+                - HighScore 
+                - Quit
+
+            Game:
+                - Objects for Player, Tiles and Projectiles (counting the bouncy ball as a projectile aswell for now)
+                - Rendering the playing field on screen
+                    [STRETCHGOAL] Sprites
+            
+            Audio:
+                - Write custom audio solution based on PortAudio. 
+                    Basically just a positional Mixer that reads the right SFX from Disk, applies effects and mixes it into the output stream.
+                    Could be fed by a command queue and thus be running on a different thread at its own framerate.
+                - implement some very basic effects
+                    - Filter
+                    - BitCrusher
+                    - [STRETCHGOAL] more effects
+            
+            Brainstorm Corner:
+                - Slow motion power-up as both a gameplay- and audio-feature (Resampling)
+                - Player can charge a shot, but will either move very slowly while doing so or having to stand still. 
+
+Goals for tomorrow:
+    - Menu
+    - Keyboard controls
+    - Basic pong-like setup, where the player can bounce a ball around. Squares and Circles for now.
+    - Lives + fail state
+
+18.07
+    9:00
+        Playing around with the SDL Rendering.
+        Ordering thoughts and stripping down first goals into achievable steps.
+        Looking into Pixelart and drawing a prototype for the player, background and basic tiles.
+    13:00 -14:30
+        Break
+    14:30
+        Basic playing field with tiles and moveable player are working. [Prototype]
+    18:00
+        Player movement is a lot smoother now, would work in a pinch.
+        Refactored classes and constexprs to seperate game and menu contexts more and cleaned up a little.
+
+Implemented
+    - Keyboard controls
+    - Playing field
+    - Tiles
+    - Player
+    - Basic Render-/Update- & Input-Routines for the game loop
+
+Goals for tomorrow:
+    - Playable basic Game loop.
+        - Projectiles
+        - Collisions
+    Maybe setting up the Audio Mixer after the Gameplay loop is implemented. 
+
+19.07
+    9:30
+        working on projectile rendering and player detachment.
+    10:00
+        projectile movement
+    12:00
+        projectiles move and collide with walls and player and get destroyed when colliding with bottomBorder
+    13:00-14:00
+        Break
+    14:30
+        Projectiles can destroy tiles, but there are edge cases, especially when hitting tiles from the top
+    16:00
+        Collisions feel better now, this should work well enough, so further improvements are a [STRETCHGOAL]
+    19:00
+        basic audio manager works and can mix stereo and surround with limitations.
+        also added attenuation so far.
+        needs a small message system to request thread safe changes on playing voices.
+    19:00-20:00
+        Break
+    21:00
+        panning works fine now locally. Will have to test this on a different machine without interface though [TODO]
+        implemented level music and collision/ destruction sounds
+        player also has lives now and the game gets soft reset until player is out of lives.
+
+Goals for next time:
+    - UI
+    - Highscore and fail states
+    - Main Menu
+    - Time-slow power up
+        - Filter
+        - BitCrusher
+
