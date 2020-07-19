@@ -5,7 +5,6 @@ libsndfile/bin/sndfile-info.exe
 libsndfile/bin/sndfile-convert.exe
 libsndfile/bin/sndfile-cmp.exe
 libsndfile/bin/sndfile-about.exe
-libsndfile/bin/libsndfile-1.dll
 Arkanoid/bin/x64/Debug/zlib1.dll
 Arkanoid/bin/x64/Debug/SDL2_image.dll
 Arkanoid/bin/x64/Debug/SDL2.dll
@@ -78,6 +77,3 @@ Solution/x64/Debug/Arkanoid.62e94d3d.tlog/CL.write.1.tlog
 Solution/x64/Debug/Arkanoid.62e94d3d.tlog/link.command.1.tlog
 Solution/x64/Debug/Arkanoid.62e94d3d.tlog/link.read.1.tlog
 Solution/x64/Debug/Arkanoid.62e94d3d.tlog/link.write.1.tlog
-Solution/Arkanoid Solution.vcxproj
-Solution/Arkanoid Solution.vcxproj.filters
-Solution/Arkanoid Solution.vcxproj.user
