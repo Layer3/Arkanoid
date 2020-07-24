@@ -20,7 +20,6 @@ void CProjectile::ReleaseFromPlayer()
 //////////////////////////////////////////////////////////////////////////////////
 bool CProjectile::Collision(SDL_Rect const& rect, Arkanoid::Audio::CAudioManager* pAudioManager)
 {
-	// TODO: this is not thought through
 	SDL_Rect projRect = GetRenderPosition();
 	short const projectileCenterX = projRect.x + (projRect.w / 2);
 	short const projectileCenterY = projRect.y + (projRect.h / 2);

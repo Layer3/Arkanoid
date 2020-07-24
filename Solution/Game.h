@@ -9,7 +9,7 @@
 namespace Arkanoid::Audio
 {
 class CAudioManager;
-}
+} // Arkanoid::Audio
 
 namespace Arkanoid::Game
 {
@@ -20,19 +20,23 @@ class CGame
 {
 public:
 
-	CGame();
+	CGame() = default;
+	~CGame();
 
-	void RunGame(SDL_Renderer* pRenderer, Arkanoid::Audio::CAudioManager* pAudioManager, const char* const levelAsset);
-	void MainLoop();
-	void Input();
-	void LoadLevel(const char* levelPath);
-	void Render();
-
+	void Initialize(SDL_Renderer* pRenderer, Arkanoid::Audio::CAudioManager* pAudioManager, const char* const levelAsset);
 	void Update(unsigned int const frameTime);
-	void UpdateProjectiles(unsigned int const frameTime);
-	void SoftReset();
+	void Reset();
 
 private:
+
+	void LoadLevel(const char* levelPath);
+
+	void Input();
+	void Render();
+	void UpdateObjects(unsigned int const frameTime);
+	void UpdateProjectiles(unsigned int const frameTime);
+
+	void SoftReset();
 
 	SDL_Renderer*                   m_pRenderer = nullptr;
 	Arkanoid::Audio::CAudioManager* m_pAudioManager;
@@ -41,7 +45,7 @@ private:
 	std::vector<CTile*>               m_pTiles{};
 	std::vector<CProjectile*>         m_pProjectiles{};
 	std::vector<CProjectile*>         m_pAttachedProjectiles{};
-	SDL_Texture*                      m_pBackground = nullptr;
+	SDL_Texture*                      m_pBackgroundGame = nullptr;
 	
 	CPlayer       m_player;
 	SDL_KeyCode   m_dominantDirectionKey = SDLK_UNKNOWN;
@@ -53,7 +57,5 @@ private:
 	
 	bool          m_roundStarted = false;
 	bool          m_gameRunning = true;
-	unsigned int  m_lastFrameTime = 0;
-	unsigned int  m_currentFrameTime = 0;
 };
 } // Arkanoid::Game

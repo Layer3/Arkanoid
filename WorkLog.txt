@@ -92,3 +92,7 @@ Goals for next time:
         - Filter
         - BitCrusher
 
+24.07
+    20:30-23:00
+        Refactoring the updates and gamestates and preparing basic menu.
+        Cleaning up memory.

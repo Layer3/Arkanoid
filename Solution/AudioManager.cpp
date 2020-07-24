@@ -32,9 +32,8 @@ CAudioManager::CAudioManager()
 	m_numChannels = Pa_GetDeviceInfo(Pa_GetDefaultOutputDevice())->maxOutputChannels;
 	m_sampleRate = Pa_GetDeviceInfo(Pa_GetDefaultOutputDevice())->defaultSampleRate;
 	m_bufferLength = 2048;
-	void* pData = malloc(sizeof(float) * m_bufferLength * m_numChannels);
-	auto pMixBuffer = new Arkanoid::Audio::SAudioBuffer(m_sampleRate, m_bufferLength, m_numChannels, pData);
-	m_pMixer = new Arkanoid::Audio::CAudioMixer(pMixBuffer);
+	m_pOutputBuffer = new Arkanoid::Audio::SAudioBuffer(m_sampleRate, m_bufferLength, m_numChannels, nullptr);
+	m_pMixer = new Arkanoid::Audio::CAudioMixer(m_sampleRate, m_bufferLength, m_numChannels);
 
 	Pa_OpenDefaultStream(
 		&m_pStream,
@@ -54,6 +53,15 @@ CAudioManager::~CAudioManager()
 {
 	Pa_StopStream(m_pStream); //wait for stream to have stopped so we can cleanly dealloc all used memory
 	Pa_CloseStream(m_pStream);
+
+	for (int i = static_cast<int>(m_pPlayingVoices.size() - 1); i >= 0 ; --i)
+	{
+		delete m_pPlayingVoices[i];
+		m_pPlayingVoices.pop_back();
+	}
+
+	delete m_pOutputBuffer;
+	delete m_pMixer;
 }
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -74,7 +82,6 @@ void CAudioManager::Play(char const* filePath, bool const positioned/* = false*/
 
 		m_pPlayingVoices.push_back(pPlayingVoice);
 	}
-	
 }
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -84,8 +91,7 @@ void CAudioManager::RenderAudio(void* pOutputBuffer)
 
 	if (!m_pPlayingVoices.empty())
 	{
-		SAudioBuffer* pOutBuffer = new SAudioBuffer(m_sampleRate, m_bufferLength, m_numChannels, pOutputBuffer);
-		Vec2D relativeRotation(1.0f, 0.0f); // Always looking forward for now
+		m_pOutputBuffer->pData = pOutputBuffer;
 
 		for (int i = static_cast<int>(m_pPlayingVoices.size() - 1); i >= 0; --i)
 		{
@@ -112,28 +118,31 @@ void CAudioManager::RenderAudio(void* pOutputBuffer)
 					pos.x = -posX * scale;
 					pos.y = posY * scale;
 					
-					if (m_pMixer->MixFile1InNPositional(pOutBuffer, pPlayingVoice->pFile, pPlayingVoice->numChannels, pos, distance) != m_bufferLength)
+					if (m_pMixer->MixFile1InNPositional(m_pOutputBuffer, pPlayingVoice->pFile, pPlayingVoice->numChannels, pos, distance) != m_bufferLength)
 					{
+						delete pPlayingVoice;
 						m_pPlayingVoices.erase(m_pPlayingVoices.begin() + i);
 					}
 				}
 				else
 				{
-					if (m_pMixer->MixFileNInN(pOutBuffer, pPlayingVoice->pFile, pPlayingVoice->numChannels) != m_bufferLength)
+					if (m_pMixer->MixFileNInN(m_pOutputBuffer, pPlayingVoice->pFile, pPlayingVoice->numChannels) != m_bufferLength)
 					{
+						delete pPlayingVoice;
 						m_pPlayingVoices.erase(m_pPlayingVoices.begin() + i);
 					}
 				}
 			}
 			else
 			{
+				delete pPlayingVoice;
 				m_pPlayingVoices.erase(m_pPlayingVoices.begin() + i);
 			}
 		}
 	}
 }
 
-// TODO: bound to crash. Package new positions as a request and change them on the callback thread.
+// TODO: Will implement a command queue if this crashes once.
 //////////////////////////////////////////////////////////////////////////////////
 bool CAudioManager::UpdatePosition(SPlayingVoice* pPlayingVoice_, Vec2D const& pos)
 {

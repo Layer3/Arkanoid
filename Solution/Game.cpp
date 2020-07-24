@@ -9,22 +9,41 @@
 namespace Arkanoid::Game
 {
 //////////////////////////////////////////////////////////////////////////////////
-CGame::CGame()
+CGame::~CGame()
 {
+	for (CTile* pTile : m_pTiles)
+	{
+		delete pTile;
+	}
+
+	m_pTiles.clear();
+
+	for (CProjectile* pProjectile : m_pAttachedProjectiles)
+	{
+		delete pProjectile;
+	}
+
+	m_pAttachedProjectiles.clear();
+
+	for (CProjectile* pProjectile : m_pProjectiles)
+	{
+		delete pProjectile;
+	}
+
+	m_pProjectiles.clear();
 }
 
 //////////////////////////////////////////////////////////////////////////////////
-void CGame::RunGame(SDL_Renderer* const pRenderer, Arkanoid::Audio::CAudioManager* pAudioManager, const char* const levelAsset)
+void CGame::Initialize(SDL_Renderer* const pRenderer, Arkanoid::Audio::CAudioManager* pAudioManager, const char* const levelAsset)
 {
 	m_pRenderer = pRenderer;
 	m_pAudioManager = pAudioManager;
-	m_pBackground = IMG_LoadTexture(m_pRenderer, asset_texture_background);
+	m_pBackgroundGame = IMG_LoadTexture(m_pRenderer, asset_texture_backgroundGame);
 	LoadLevel(levelAsset);
 	
 	m_player.SetTexture(m_pRenderer, asset_texture_player);
 
-	// TODO: This projectile construction looks a bit ugly
-	// Also in general, the construction of RederedObjects could be cleaner. Minor issue for now.
+	// TODO: This projectile construction is ugly and hard coded.
 	SDL_Rect projectilePosition = m_player.GetRenderPosition();
 	SDL_Rect projectileSource = m_player.GetSource();
 
@@ -37,40 +56,26 @@ void CGame::RunGame(SDL_Renderer* const pRenderer, Arkanoid::Audio::CAudioManage
 	pProjectile->SetTexture(m_pRenderer, asset_texture_projectile);
 	pProjectile->SetPosition(m_player.GetPosition());
 	m_pAttachedProjectiles.push_back(pProjectile);
-	
-	m_pAudioManager->Play(asset_audio_music);
-
-	MainLoop();
 }
 
 //////////////////////////////////////////////////////////////////////////////////
-void CGame::MainLoop()
+void CGame::Update(unsigned int const frameTime)
 {
+	Input();
+	UpdateObjects(frameTime);
 	Render();
+}
 
-	while (m_gameRunning)
-	{
-		m_currentFrameTime = SDL_GetTicks() - m_lastFrameTime;
-		m_lastFrameTime += m_currentFrameTime;
-
-		Input();
-		Update(m_currentFrameTime);
-		Render();
-
-		unsigned int const updateTime = SDL_GetTicks() - m_lastFrameTime;
-
-		if (updateTime < g_targetFrameTime)
-		{
-			SDL_Delay(g_targetFrameTime - updateTime);
-		}
-	}
+//////////////////////////////////////////////////////////////////////////////////
+void CGame::Reset()
+{
 }
 
 //////////////////////////////////////////////////////////////////////////////////
 void CGame::Render()
 {
 	// Background
-	SDL_RenderCopy(m_pRenderer, m_pBackground, nullptr, nullptr);
+	SDL_RenderCopy(m_pRenderer, m_pBackgroundGame, nullptr, nullptr);
 
 	// Tiles
 	for (CTile* pTile : m_pTiles)
@@ -98,7 +103,7 @@ void CGame::Render()
 }
 
 //////////////////////////////////////////////////////////////////////////////////
-void CGame::Update(unsigned int const frameTime)
+void CGame::UpdateObjects(unsigned int const frameTime)
 {
 	if (m_dominantDirectionKey != SDLK_UNKNOWN)
 	{
@@ -127,7 +132,8 @@ void CGame::Input()
 		{
 		case SDL_QUIT:
 			{
-				// quit everything.
+				s_gameState = EGameState::ShutDown;
+				break;
 			}
 		case SDL_KEYDOWN:
 			{
@@ -191,7 +197,8 @@ void CGame::Input()
 					}
 				case SDLK_ESCAPE:
 					{
-
+						s_gameState = EGameState::Paused;
+						break;
 					}
 				default:
 					{
@@ -225,7 +232,7 @@ void CGame::SoftReset()
 	projectileSource.w = 15;
 	projectileSource.h = 15;
 
-	CProjectile* pProjectile = new CProjectile(projectilePosition, projectileSource);
+	CProjectile* const pProjectile = new CProjectile(projectilePosition, projectileSource);
 	pProjectile->SetTexture(m_pRenderer, asset_texture_projectile);
 	pProjectile->SetPosition(m_player.GetPosition());
 	m_pAttachedProjectiles.push_back(pProjectile);
@@ -249,7 +256,8 @@ void CGame::LoadLevel(const char* levelPath)
 				{
 					int const borderWidth = static_cast<int>(g_tileWidth * 0.5f);
 					CTile* const pTile = new CTile(SDL_Rect(borderWidth + index * g_tileWidth, (line + 1) * g_tileHeight, g_tileWidth, g_tileHeight), SDL_Rect(0, 0, g_tileWidth, g_tileHeight), currentTile);
-					pTile->SetTexture(m_pRenderer, asset_texture_defaultTile);
+
+					pTile->SetTexture(m_pRenderer, (currentTile < 4) ? asset_tileTextures[currentTile] : asset_tileTextures[3]);
 					m_pTiles.push_back(pTile);
 
 					m_level[line][index] = std::make_tuple(currentTile, pTile);
@@ -262,6 +270,7 @@ void CGame::LoadLevel(const char* levelPath)
 	levelFile.close();
 }
 
+//////////////////////////////////////////////////////////////////////////////////
 void CGame::UpdateProjectiles(unsigned int const frameTime)
 {
 	if (!m_roundStarted)
@@ -272,8 +281,8 @@ void CGame::UpdateProjectiles(unsigned int const frameTime)
 			CProjectile* pDetatchProjectile = m_pAttachedProjectiles.back();
 			pDetatchProjectile->ReleaseFromPlayer();
 			m_pProjectiles.push_back(pDetatchProjectile);
+			m_pAttachedProjectiles.pop_back();
 
-			m_pAttachedProjectiles.erase(m_pAttachedProjectiles.end() - 1);
 			m_waitForWKeyDown = true;
 			m_roundStarted = true;
 
@@ -305,7 +314,8 @@ void CGame::UpdateProjectiles(unsigned int const frameTime)
 				CProjectile* pDetatchProjectile = m_pAttachedProjectiles.back();
 				pDetatchProjectile->ReleaseFromPlayer();
 				m_pProjectiles.push_back(pDetatchProjectile);
-				m_pAttachedProjectiles.erase(m_pAttachedProjectiles.end() - 1);
+				m_pAttachedProjectiles.pop_back();
+
 				m_waitForWKeyDown = true;
 
 				if (!m_pAttachedProjectiles.empty())
@@ -472,7 +482,7 @@ void CGame::UpdateProjectiles(unsigned int const frameTime)
 						{
 							if (m_pTiles[i] == pTile1)
 							{
-								if (pTile1->Damage())
+								if (pTile1->Damage(m_pRenderer))
 								{
 									m_pTiles.erase(m_pTiles.begin() + i);
 
@@ -490,7 +500,7 @@ void CGame::UpdateProjectiles(unsigned int const frameTime)
 						{
 							if (m_pTiles[i] == pTile2)
 							{
-								if (pTile2->Damage())
+								if (pTile2->Damage(m_pRenderer))
 								{
 									m_pTiles.erase(m_pTiles.begin() + i);
 
@@ -508,7 +518,7 @@ void CGame::UpdateProjectiles(unsigned int const frameTime)
 						{
 							if (m_pTiles[i] == pTile3)
 							{
-								if (pTile3->Damage())
+								if (pTile3->Damage(m_pRenderer))
 								{
 									m_pTiles.erase(m_pTiles.begin() + i);
 

@@ -7,8 +7,6 @@ namespace Arkanoid::Audio
 {
 	struct SPlayingVoice final
 	{
-		SPlayingVoice() = delete;
-
 		explicit SPlayingVoice(SNDFILE* pFile_, unsigned char const numFileChannels_, unsigned short const fileSampleRate_, bool const positioned_ = false, Vec2D const& position_ = Vec2D(0.0f, 0.0f))
 			: pFile(pFile_)
 			, numChannels(numFileChannels_)

@@ -17,6 +17,8 @@ public:
 		, m_lives(3)
 	{}
 
+	~CPlayer() = default;
+
 	void Move(unsigned int const frameTime, float const modifier);
 	Pos2D const& GetPosition() const { return m_positionXY; }
 

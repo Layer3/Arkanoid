@@ -27,6 +27,7 @@ private:
 	std::vector<Arkanoid::Audio::SPlayingVoice*> m_pPlayingVoices{};
 	Arkanoid::Audio::CAudioMixer*                m_pMixer = nullptr;
 	PaStream*                                    m_pStream = nullptr;
+	Arkanoid::Audio::SAudioBuffer*               m_pOutputBuffer = nullptr;
 
 	int    m_numChannels = 0;
 	double m_sampleRate = 0;

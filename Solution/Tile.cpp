@@ -3,7 +3,7 @@
 namespace Arkanoid::Game
 {
 //////////////////////////////////////////////////////////////////////////////////
-bool CTile::Damage()
+bool CTile::Damage(SDL_Renderer* const pRenderer)
 {
 	bool destroyed = false;
 
@@ -11,6 +11,8 @@ bool CTile::Damage()
 	{
 		destroyed = true;
 	}
+
+	SetTexture(pRenderer, (m_hp < 4) ? asset_tileTextures[m_hp] : asset_tileTextures[3]);
 
 	return destroyed;	
 }

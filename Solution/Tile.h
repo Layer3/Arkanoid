@@ -12,10 +12,11 @@ public:
 	CTile(SDL_Rect const& position, SDL_Rect const& source, char const hp)
 		: CRenderedObject(position, source)
 		, m_hp(hp)
-	{
-	}
+	{}
 
-	bool Damage();
+	~CTile() = default;
+
+	bool Damage(SDL_Renderer* const pRenderer);
 
 private:
 

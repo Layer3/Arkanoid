@@ -10,15 +10,15 @@ class CRenderedObject
 public:
 
 	CRenderedObject() = delete;
-
-	CRenderedObject(SDL_Rect const& position, SDL_Rect const& source)
+	explicit CRenderedObject(SDL_Rect const& position, SDL_Rect const& source)
 		: m_position(position)
 		, m_source(source)
 		, m_pTexture(nullptr)
-	{
-	}
+	{}
 
-	SDL_Rect const GetRenderPosition() const         { return m_position; }
+	virtual ~CRenderedObject() = default;
+
+	SDL_Rect const GetRenderPosition() const { return m_position; }
 	void           SetRenderPosition(Pos2D const& pos);
 	void           SetRenderPostitionX(int const& x) { m_position.x = x; } // convenience for player
 

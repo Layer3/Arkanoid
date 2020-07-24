@@ -16,10 +16,7 @@ struct SAudioBuffer
 		, pData(pData_)
 	{}
 
-	~SAudioBuffer()
-	{
-		free(pData);
-	}
+	~SAudioBuffer() = default;
 
 	double const       sampleRate;
 	unsigned int const bufferLength;
