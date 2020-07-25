@@ -26,7 +26,7 @@ void CGame::Initialize(SDL_Renderer* const pRenderer, Arkanoid::Audio::CAudioMan
 	m_pBackgroundGame = std::make_unique<SCustomTexture>(IMG_LoadTexture(m_pRenderer, asset_texture_backgroundGame));
 	
 	m_player.SetTexture(m_pRenderer, asset_texture_player);
-    
+
 	m_font = TTF_OpenFont(asset_font_sans, 10);
 	SDL_Surface* textSurface = TTF_RenderText_Solid(m_font, "Score: ", m_textColor);
 	m_pScoreTitle = std::make_unique<SCustomTexture>(SDL_CreateTextureFromSurface(m_pRenderer, textSurface));
@@ -160,11 +160,11 @@ void CGame::UpdateObjects(unsigned int const frameTime)
 {
 	if (m_dominantDirectionKey != SDLK_UNKNOWN)
 	{
-		m_player.Move(frameTime, (m_dominantDirectionKey == SDLK_a) ? -1.0f : 1.0f);
+		m_player.Move(frameTime, m_timeFactor * (m_dominantDirectionKey == SDLK_a) ? -1.0f : 1.0f);
 	}
 	else if (m_aKeyDown || m_dKeyDown)
 	{
-		m_player.Move(frameTime, (m_aKeyDown) ? -1.0f : 1.0f);
+		m_player.Move(frameTime, m_timeFactor * (m_aKeyDown) ? -1.0f : 1.0f);
 	}
 
 	UpdateProjectiles(frameTime);
@@ -343,17 +343,17 @@ void CGame::UpdateProjectiles(unsigned int const frameTime)
 
 			if (!m_pAttachedProjectiles.empty())
 			{
-				Pos2D pos = m_player.GetPosition();
-				pos.x += 23;
-				pos.y -= 15;
+				Vec2D pos = m_player.GetPosition();
+				pos.x += 23.0f;
+				pos.y -= 15.0f;
 				m_pAttachedProjectiles[m_pAttachedProjectiles.size() - 1]->SetPosition(pos);
 			}
 		}
 		else
 		{
-			Pos2D pos = m_player.GetPosition();
-			pos.x += 23;
-			pos.y -= 15;
+			Vec2D pos = m_player.GetPosition();
+			pos.x += 23.0f;
+			pos.y -= 15.0f;
 			m_pAttachedProjectiles[m_pAttachedProjectiles.size() - 1]->SetPosition(pos);
 		}
 	}
@@ -374,17 +374,17 @@ void CGame::UpdateProjectiles(unsigned int const frameTime)
 
 				if (!m_pAttachedProjectiles.empty())
 				{
-					Pos2D pos = m_player.GetPosition();
-					pos.x += 23;
-					pos.y -= 15;
+					Vec2D pos = m_player.GetPosition();
+					pos.x += 23.0f;
+					pos.y -= 15.0f;
 					m_pAttachedProjectiles[m_pAttachedProjectiles.size() - 1]->SetPosition(pos);
 				}
 			}
 			else // Update Rendering on the next attached bullet
 			{
-				Pos2D pos = m_player.GetPosition();
-				pos.x += 23;
-				pos.y -= 15;
+				Vec2D pos = m_player.GetPosition();
+				pos.x += 23.0f;
+				pos.y -= 15.0f;
 				m_pAttachedProjectiles[m_pAttachedProjectiles.size() - 1]->SetPosition(pos);
 			}
 		}
@@ -397,7 +397,7 @@ void CGame::UpdateProjectiles(unsigned int const frameTime)
 				bool didCollide = false;
 
 				auto& pProjectile = m_pProjectiles[i];
-				pProjectile->UpdatePosition(frameTime);
+				pProjectile->UpdatePosition(frameTime, m_timeFactor);
 
 				SDL_Rect const& pos = pProjectile->GetRenderPosition();
 

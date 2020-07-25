@@ -42,6 +42,7 @@ private:
 
 	SDL_Renderer*                   m_pRenderer = nullptr;
 	Arkanoid::Audio::CAudioManager* m_pAudioManager = nullptr;
+	unsigned char                   m_currentLevel = 0;
 	
 	std::tuple<unsigned char, CTile*>         m_level[g_levelHeightTiles][g_levelWidthTiles]{};
 	std::vector<std::unique_ptr<CTile>>       m_pTiles{};
@@ -53,10 +54,10 @@ private:
 	std::unique_ptr<SCustomTexture>           m_pPlayerLivesTitle;
 
 	unsigned int m_score = 0;
-	SDL_Color    m_textColor = { 255, 255, 255 };
 	TTF_Font*    m_font = nullptr;
-	
-	CPlayer       m_player;
+	SDL_Color    m_textColor = { 255, 255, 255 };
+	float        m_timeFactor = 1.3f;
+
 	SDL_KeyCode   m_dominantDirectionKey = SDLK_UNKNOWN;
 	SDL_KeyCode   m_recessiveDirectionKey = SDLK_UNKNOWN;
 	bool          m_aKeyDown = false;
@@ -67,6 +68,6 @@ private:
 	bool          m_roundStarted = false;
 	bool          m_gameRunning = true;
 
-	unsigned char m_currentLevel = 0;
+	CPlayer       m_player;
 };
 } // Arkanoid::Game

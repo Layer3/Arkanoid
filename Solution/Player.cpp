@@ -5,19 +5,19 @@ namespace Arkanoid::Game
 //////////////////////////////////////////////////////////////////////////////////
 void CPlayer::Move(unsigned int const frameTime, float const modifier)
 {
-	int const distanceToMove = static_cast<int>(((static_cast<float>(frameTime) / 1000.0f) * g_playerSpeed) * modifier); // TODO: frametime as 1/sec maybe
+	float const distanceToMove = ((static_cast<float>(frameTime) / 1000.0f) * g_playerSpeed) * modifier; // TODO: frametime as 1/sec maybe
 	m_positionXY.x += distanceToMove;
 
-	if (m_positionXY.x < g_borderLeft)
+	if (m_positionXY.x < static_cast<float>(g_borderLeft))
 	{
-		m_positionXY.x = g_borderLeft;
+		m_positionXY.x = static_cast<float>(g_borderLeft);
 	}
-	else if (m_positionXY.x > (g_borderRight - m_playerWidth))
+	else if (m_positionXY.x > static_cast<float>(g_borderRight - m_playerWidth))
 	{
-		m_positionXY.x = (g_borderRight - m_playerWidth);
+		m_positionXY.x = static_cast<float>(g_borderRight - m_playerWidth);
 	}
 
-	SetRenderPostitionX(m_positionXY.x);
+	SetRenderPostitionX(static_cast<int>(m_positionXY.x));
 }
 
 //////////////////////////////////////////////////////////////////////////////////

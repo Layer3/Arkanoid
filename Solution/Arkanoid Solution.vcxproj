@@ -194,6 +194,7 @@
   <ItemGroup>
     <None Include="..\Arkanoid\Assets\Levels\1.level" />
     <None Include="..\Arkanoid\Assets\Levels\2.level" />
+    <None Include="..\Arkanoid\Assets\Levels\3.level" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -86,19 +86,19 @@ bool CProjectile::Collision(SDL_Rect const& rect, Arkanoid::Audio::CAudioManager
 }
 
 //////////////////////////////////////////////////////////////////////////////////
-void CProjectile::UpdatePosition(unsigned int const frameTime)
+void CProjectile::UpdatePosition(unsigned int const frameTime, float const modifier)
 {
-	float const frameMovementFactor = (static_cast<float>(frameTime) / 1000.0f);
-	m_position.x += static_cast<short>(frameMovementFactor * m_directionXY.x);
-	m_position.y -= static_cast<short>(frameMovementFactor * m_directionXY.y); // positive y is down
+	float const frameMovementFactor = (static_cast<float>(frameTime) / 1000.0f) * modifier;
+	m_position.x += frameMovementFactor * m_directionXY.x;
+	m_position.y -= frameMovementFactor * m_directionXY.y; // positive y is down
 
-	SetRenderPosition(m_position);
+	SetRenderPosition(Pos2D{ static_cast<short>(m_position.x), static_cast<short>(m_position.y) });
 }
 
 //////////////////////////////////////////////////////////////////////////////////
-void CProjectile::SetPosition(Pos2D const& position)
+void CProjectile::SetPosition(Vec2D const& position)
 {
 	m_position = position;
-	SetRenderPosition(position);
+	SetRenderPosition(Pos2D{ static_cast<short>(m_position.x), static_cast<short>(m_position.y) });
 }
 } // namespace Arkanoid::Game

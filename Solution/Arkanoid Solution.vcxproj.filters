@@ -91,5 +91,8 @@
     <None Include="..\Arkanoid\Assets\Levels\2.level">
       <Filter>Levels</Filter>
     </None>
+    <None Include="..\Arkanoid\Assets\Levels\3.level">
+      <Filter>Levels</Filter>
+    </None>
   </ItemGroup>
 </Project>

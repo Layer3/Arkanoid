@@ -29,10 +29,11 @@ constexpr unsigned int   g_targetFPS = 50;
 constexpr unsigned int   g_targetFrameTime = 1000 / g_targetFPS;
 
 // Levels
-constexpr unsigned char const g_numLevels = 2;
+constexpr unsigned char const g_numLevels = 3;
 
 constexpr char const* asset_level01 = "../../../Assets/Levels/1.level";
 constexpr char const* asset_level02 = "../../../Assets/Levels/2.level";
+constexpr char const* asset_level02 = "../../../Assets/Levels/3.level";
 
 constexpr char const* asset_levels[g_numLevels]
 {
