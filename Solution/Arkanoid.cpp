@@ -73,7 +73,6 @@ void CArkanoid::MainLoop()
 		case EGameState::Start:
 			{
 				m_game.Initialize(m_pRenderer, m_pAudioManager);
-				m_game.Reset();
 
 				m_pAudioManager->SetMusic(Audio::EMusic::Game);
 				s_gameState = EGameState::Playing;
@@ -90,6 +89,8 @@ void CArkanoid::MainLoop()
 				{
 					m_highScore = m_game.GetScore();
 				}
+
+				m_game.Reset();
 
 				m_pAudioManager->SetMusic(Audio::EMusic::Menu);
 

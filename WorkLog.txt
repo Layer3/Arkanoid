@@ -114,7 +114,15 @@ Goals for next time:
         break;
     16:30 - 18:00
         Dynamic music is running, implementation is a bit inconsistent with the rest of the mixer. Cleaning that up is a [STRETCHGOAL] though.
-        
+    - 20:00
+        Positioning now utilizes floats instead of short int. Feels a lot smoother now.
+        Integrated time factor in preparation for slow down feature. 
+        Added a third level, in case anyone wants to play that far.
+        GameOver state now does what it should.
+        Slow Down works on game side.
 
-
-    
+[TODO] 
+-Audio filter for energy bar feature.
+-Sanity check.
+-Get some playtesting going.
+-Call it a day.

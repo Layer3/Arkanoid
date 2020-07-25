@@ -25,7 +25,7 @@ constexpr unsigned short g_menuButtonWidth = 180;
 constexpr unsigned short g_menuButtonHeight = 50;
 constexpr unsigned char  g_numMenuButtons = 2;
 
-constexpr unsigned int   g_targetFPS = 50;
+constexpr unsigned int   g_targetFPS = 100;
 constexpr unsigned int   g_targetFrameTime = 1000 / g_targetFPS;
 
 // Levels
@@ -33,7 +33,7 @@ constexpr unsigned char const g_numLevels = 3;
 
 constexpr char const* asset_level01 = "../../../Assets/Levels/1.level";
 constexpr char const* asset_level02 = "../../../Assets/Levels/2.level";
-constexpr char const* asset_level02 = "../../../Assets/Levels/3.level";
+constexpr char const* asset_level03 = "../../../Assets/Levels/3.level";
 
 constexpr char const* asset_levels[g_numLevels]
 {
@@ -45,18 +45,19 @@ constexpr char const* asset_levels[g_numLevels]
 constexpr char const* asset_font_sans = "../../../Assets/Graphics/OpenSans-Regular.ttf";
 
 // Textures Menu
-constexpr char const* asset_texture_backgroundMenu = "../../../Assets/Graphics/backgroundMenu.png";
-constexpr char const* asset_texture_buttonDefault = "../../../Assets/Graphics/buttonDefault.png";
-constexpr char const* asset_texture_buttonSelected = "../../../Assets/Graphics/buttonSelected.png";
+constexpr char const* asset_texture_backgroundMenu = "../../../Assets/Graphics/BackgroundMenu.png";
+constexpr char const* asset_texture_buttonDefault = "../../../Assets/Graphics/ButtonDefault.png";
+constexpr char const* asset_texture_buttonSelected = "../../../Assets/Graphics/ButtonSelected.png";
 
 // Textures Game
-constexpr char const* asset_texture_tile01 = "../../../Assets/Graphics/tile01.png";
-constexpr char const* asset_texture_tile02 = "../../../Assets/Graphics/tile02.png";
-constexpr char const* asset_texture_tile03 = "../../../Assets/Graphics/tile03.png";
-constexpr char const* asset_texture_tile04 = "../../../Assets/Graphics/tile04.png";
-constexpr char const* asset_texture_backgroundGame = "../../../Assets/Graphics/backgroundGame.png";
-constexpr char const* asset_texture_player = "../../../Assets/Graphics/player.png";
-constexpr char const* asset_texture_projectile = "../../../Assets/Graphics/projectile.png";
+constexpr char const* asset_texture_tile01 = "../../../Assets/Graphics/Tile01.png";
+constexpr char const* asset_texture_tile02 = "../../../Assets/Graphics/Tile02.png";
+constexpr char const* asset_texture_tile03 = "../../../Assets/Graphics/Tile03.png";
+constexpr char const* asset_texture_tile04 = "../../../Assets/Graphics/Tile04.png";
+constexpr char const* asset_texture_backgroundGame = "../../../Assets/Graphics/BackgroundGame.png";
+constexpr char const* asset_texture_energyBar = "../../../Assets/Graphics/Energy.png";
+constexpr char const* asset_texture_player = "../../../Assets/Graphics/Player.png";
+constexpr char const* asset_texture_projectile = "../../../Assets/Graphics/Projectile.png";
 
 constexpr char const* asset_tileTextures[4]
 {
@@ -146,6 +147,7 @@ namespace Arkanoid::Game
 	constexpr unsigned short g_playerHeight = 460;
 
 	constexpr float          g_projectileSpeed = 250.0f;
+	constexpr float          g_maxVelocity = 1.5f;
 
 	constexpr unsigned int   g_score_tileDestroyed = 100;
 	constexpr unsigned int   g_score_tileDamaged = 50;

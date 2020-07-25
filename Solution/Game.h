@@ -49,6 +49,7 @@ private:
 	std::vector<std::unique_ptr<CProjectile>> m_pProjectiles{};
 	std::vector<std::unique_ptr<CProjectile>> m_pAttachedProjectiles{};
 	std::unique_ptr<SCustomTexture>           m_pBackgroundGame;
+	std::unique_ptr<SCustomTexture>           m_pEnergyBar;
 	std::unique_ptr<SCustomTexture>           m_pScoreTitle;
 	std::unique_ptr<SCustomTexture>           m_pScore;
 	std::unique_ptr<SCustomTexture>           m_pPlayerLivesTitle;
@@ -56,17 +57,20 @@ private:
 	unsigned int m_score = 0;
 	TTF_Font*    m_font = nullptr;
 	SDL_Color    m_textColor = { 255, 255, 255 };
-	float        m_timeFactor = 1.3f;
+	float        m_timeFactor = 1.0f;
+	float        m_oldTimeFactor = m_timeFactor;
+	float        m_energy = 1.0f;
 
 	SDL_KeyCode   m_dominantDirectionKey = SDLK_UNKNOWN;
 	SDL_KeyCode   m_recessiveDirectionKey = SDLK_UNKNOWN;
 	bool          m_aKeyDown = false;
 	bool          m_dKeyDown = false;
 	bool          m_wKeyDown = false;
-	bool          m_waitForWKeyDown = false;
+	bool          m_sKeyDown = false;
+	bool          m_waitForWKeyUp = false;
+	bool          m_waitForSKeyUp = false;
 	
 	bool          m_roundStarted = false;
-	bool          m_gameRunning = true;
 
 	CPlayer       m_player;
 };

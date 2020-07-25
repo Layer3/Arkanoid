@@ -8,6 +8,11 @@ void CProjectile::SetDirection(float const x, float const y)
 {
 	m_directionXY.x = x;
 	m_directionXY.y = y;
+
+	if (m_velocity < g_maxVelocity)
+	{
+		m_velocity += 0.01f;
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////

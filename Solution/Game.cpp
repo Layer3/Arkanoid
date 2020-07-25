@@ -24,6 +24,7 @@ void CGame::Initialize(SDL_Renderer* const pRenderer, Arkanoid::Audio::CAudioMan
 	
 	// Init all needed textures
 	m_pBackgroundGame = std::make_unique<SCustomTexture>(IMG_LoadTexture(m_pRenderer, asset_texture_backgroundGame));
+	m_pEnergyBar = std::make_unique<SCustomTexture>(IMG_LoadTexture(m_pRenderer, asset_texture_energyBar));
 	
 	m_player.SetTexture(m_pRenderer, asset_texture_player);
 
@@ -67,7 +68,23 @@ void CGame::Update(unsigned int const frameTime)
 			return;
 		}
 
-		LoadLevel(asset_level02);
+		LoadLevel(asset_levels[m_currentLevel]);
+	}
+
+	if (m_energy >= 1.0f)
+	{
+		if (m_sKeyDown && !m_waitForSKeyUp)
+		{
+			m_waitForSKeyUp = true;
+			m_oldTimeFactor = m_timeFactor + 0.1f;
+			m_timeFactor = m_timeFactor * 0.5f;
+			m_energy = 0.0f;
+		}
+	}
+	else
+	{
+		m_timeFactor = (0.5f * m_oldTimeFactor) + (0.5f * m_energy * m_oldTimeFactor);
+		m_energy += static_cast<float>(frameTime) / 8000.0f; // take 8 seconds to refill
 	}
 
 	Input();
@@ -78,6 +95,25 @@ void CGame::Update(unsigned int const frameTime)
 //////////////////////////////////////////////////////////////////////////////////
 void CGame::Reset()
 {
+	m_aKeyDown = false;
+	m_dKeyDown = false;
+	m_wKeyDown = false;
+	m_sKeyDown = false;
+	m_waitForWKeyUp = false;
+	m_waitForSKeyUp = false;
+	m_dominantDirectionKey = SDLK_UNKNOWN;
+	m_recessiveDirectionKey = SDLK_UNKNOWN;
+	m_timeFactor = 1.3f;
+	m_oldTimeFactor = m_timeFactor;
+	m_score = 0;
+	m_roundStarted = false;
+	m_currentLevel = 0;
+
+	m_pTiles.clear();
+	m_pAttachedProjectiles.clear();
+	m_pProjectiles.clear();
+
+	m_player.Reset();
 }
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -85,6 +121,8 @@ void CGame::Render()
 {
 	// Background
 	SDL_RenderCopy(m_pRenderer, m_pBackgroundGame->m_pTexture, nullptr, nullptr);
+	SDL_Rect energyBarPosition{ static_cast<int>(static_cast<float>(g_mapWidth / 2) * (1.0f - m_energy)), g_borderBottom, static_cast<int>(g_mapWidth * m_energy), 20};
+	SDL_RenderCopy(m_pRenderer, m_pEnergyBar->m_pTexture, nullptr, &energyBarPosition);
 
 	// UI - Score
 	unsigned int scoreDigits = 1;
@@ -178,6 +216,7 @@ void CGame::Input()
 	bool aDown = m_aKeyDown;
 	bool dDown = m_dKeyDown;
 	bool wDown = m_wKeyDown;
+	bool sDown = m_sKeyDown;
 
 	while (SDL_PollEvent(&event))
 	{
@@ -190,41 +229,51 @@ void CGame::Input()
 			}
 		case SDL_KEYDOWN:
 			{
-				if (dominantKey == SDLK_UNKNOWN)
+				switch (event.key.keysym.sym)
 				{
-					if (event.key.keysym.sym == SDLK_a)
+				case SDLK_a:
 					{
 						aDown = true;
-						dominantKey = SDLK_a;
+
+						if (dominantKey == SDLK_UNKNOWN)
+						{
+							dominantKey = SDLK_a;
+						}
+
+						break;
 					}
-					else if (event.key.keysym.sym == SDLK_d)
-					{
-						dominantKey = SDLK_d;
-						dDown = true;
-					}
-				}
-				else
-				{
-					if (event.key.keysym.sym == SDLK_a)
-					{
-						aDown = true;
-					}
-					else if (event.key.keysym.sym == SDLK_d)
+				case SDLK_d:
 					{
 						dDown = true;
+
+						if (dominantKey == SDLK_UNKNOWN)
+						{
+							dominantKey = SDLK_d;
+						}
+
+						break;
+					}
+				case SDLK_w:
+					{
+						wDown = true;
+						break;
+					}
+				case SDLK_s:
+					{
+						sDown = true;
+						break;
+					}
+				default:
+					{
+						break;
 					}
 				}
 
-				if (event.key.keysym.sym == SDLK_w)
-				{
-					wDown = true;
-				}
-
-				break; 
+				break;
 			}
 		case SDL_KEYUP:
 			{
-				switch (event.key.keysym.sym) 
+				switch (event.key.keysym.sym)
 				{
 				case SDLK_a:
 					{
@@ -241,16 +290,18 @@ void CGame::Input()
 				case SDLK_w:
 					{
 						wDown = false;
-						m_waitForWKeyDown = false;
+						m_waitForWKeyUp = false;
 						break;
 					}
 				case SDLK_s:
 					{
+						sDown = false;
+						m_waitForSKeyUp = false;
 						break;
 					}
 				case SDLK_ESCAPE:
 					{
-						s_gameState = EGameState::GameOver;
+						s_gameState = EGameState::Paused;
 						break;
 					}
 				default:
@@ -261,7 +312,7 @@ void CGame::Input()
 
 				break;
 			}
-		default: 
+		default:
 			{
 				break;
 			}
@@ -272,6 +323,7 @@ void CGame::Input()
 	m_aKeyDown = aDown;
 	m_dKeyDown = dDown;
 	m_wKeyDown = wDown;
+	m_sKeyDown = sDown;
 }
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -338,7 +390,7 @@ void CGame::UpdateProjectiles(unsigned int const frameTime)
 			m_pProjectiles.push_back(std::unique_ptr<CProjectile>(pDetatchProjectile.release()));
 			m_pAttachedProjectiles.pop_back();
 
-			m_waitForWKeyDown = true;
+			m_waitForWKeyUp = true;
 			m_roundStarted = true;
 
 			if (!m_pAttachedProjectiles.empty())
@@ -363,14 +415,14 @@ void CGame::UpdateProjectiles(unsigned int const frameTime)
 		{
 			// TODO: haven't checked if key down events are being repeated while a key stays pressed
 			// Detach
-			if (!m_waitForWKeyDown && m_wKeyDown)
+			if (!m_waitForWKeyUp && m_wKeyDown)
 			{
 				auto& pDetatchProjectile = m_pAttachedProjectiles.back();
 				pDetatchProjectile->ReleaseFromPlayer();
 				m_pProjectiles.push_back(std::unique_ptr<CProjectile>(pDetatchProjectile.release()));
 				m_pAttachedProjectiles.pop_back();
 
-				m_waitForWKeyDown = true;
+				m_waitForWKeyUp = true;
 
 				if (!m_pAttachedProjectiles.empty())
 				{
@@ -406,18 +458,21 @@ void CGame::UpdateProjectiles(unsigned int const frameTime)
 				{
 					m_pProjectiles.erase((m_pProjectiles.begin() + i));
 
-					if (!m_player.Damage())
+					if (m_pProjectiles.empty())
 					{
-						if (m_player.GetLives() == 1)
+						if (!m_player.Damage())
 						{
-							m_pAudioManager->SetMusic(Arkanoid::Audio::EMusic::Tension);
-						}
+							if (m_player.GetLives() == 1)
+							{
+								m_pAudioManager->SetMusic(Arkanoid::Audio::EMusic::Tension);
+							}
 
-						SoftReset();
-					}
-					else
-					{
-						s_gameState = EGameState::GameOver;
+							SoftReset();
+						}
+						else
+						{
+							s_gameState = EGameState::GameOver;
+						}
 					}
 				}
 				else if (pos.y <= g_borderTop)

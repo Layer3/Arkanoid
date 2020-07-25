@@ -32,4 +32,12 @@ bool CPlayer::Damage()
 	
 	return isDead;
 }
+
+//////////////////////////////////////////////////////////////////////////////////
+void CPlayer::Reset()
+{
+	m_positionXY = { static_cast<float>(Arkanoid::g_mapWidth / 2), static_cast<float>(Arkanoid::g_mapHeight - (Arkanoid::Game::g_tileHeight * 2)) };
+	SetRenderPosition( {static_cast<short>(m_positionXY.x), static_cast<short>(m_positionXY.y) });
+	m_lives = 3;
+}
 } // Arkanoid::Game

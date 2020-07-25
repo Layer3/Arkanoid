@@ -23,11 +23,12 @@ public:
 	Vec2D const& GetPosition() const { return m_positionXY; }
 	char const&  GetLives() const { return m_lives; }
 	bool         Damage();
+	void         Reset();
 
 private:
 
 	Vec2D m_positionXY;
 	short m_playerWidth;
-	char m_lives;
+	char  m_lives;
 };
 } // namespace Arkanoid::Games
