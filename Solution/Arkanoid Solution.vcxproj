@@ -135,11 +135,11 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\libsndfile\lib;..\PortAudio\portaudio\build\msvc\x64\Release\;..\SDL2-2.0.12\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;portaudio_x64.lib;libsndfile-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\libsndfile\lib\;..\PortAudio\portaudio\build\msvc\x64\Release\;..\SDL2-2.0.12\lib\x64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;portaudio_x64.lib;libsndfile-1.lib;SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>CopySDL.bat "$(SolutionDir)..\Arkanoid\bin\$(Platform)\$(Configuration)\"</Command>
+      <Command>CopyRuntimeLibs.bat "$(SolutionDir)..\Arkanoid\bin\$(Platform)\$(Configuration)\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -159,11 +159,11 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\libsndfile\lib;..\PortAudio\portaudio\build\msvc\x64\Release\;..\SDL2-2.0.12\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;portaudio_x64.lib;libsndfile-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\libsndfile\lib\;..\PortAudio\portaudio\build\msvc\x64\Release\;..\SDL2-2.0.12\lib\x64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;portaudio_x64.lib;libsndfile-1.lib;SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>CopySDL.bat "$(SolutionDir)..\Arkanoid\bin\$(Platform)\$(Configuration)\"</Command>
+      <Command>CopyRuntimeLibs.bat "$(SolutionDir)..\Arkanoid\bin\$(Platform)\$(Configuration)\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -186,8 +186,9 @@
     <ClInclude Include="PlayingVoice.h" />
     <ClInclude Include="Projectile.h" />
     <ClInclude Include="RenderedObject.h" />
-    <ClInclude Include="Constexpr.h" />
+    <ClInclude Include="Global.h" />
     <ClInclude Include="AudioMixer.h" />
+    <ClInclude Include="RenderUtil.h" />
     <ClInclude Include="Tile.h" />
   </ItemGroup>
   <ItemGroup>

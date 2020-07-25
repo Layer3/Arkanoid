@@ -1,47 +1,43 @@
 #include "Game.h"
 #include "AudioManager.h"
-#include "Projectile.h"
-#include "Tile.h"
 #include <cmath>
 #include <fstream>
+#include <memory>
 #include <SDL_image.h>
+#include <string>
 
 namespace Arkanoid::Game
 {
 //////////////////////////////////////////////////////////////////////////////////
 CGame::~CGame()
 {
-	for (CTile* pTile : m_pTiles)
-	{
-		delete pTile;
-	}
-
 	m_pTiles.clear();
-
-	for (CProjectile* pProjectile : m_pAttachedProjectiles)
-	{
-		delete pProjectile;
-	}
-
 	m_pAttachedProjectiles.clear();
-
-	for (CProjectile* pProjectile : m_pProjectiles)
-	{
-		delete pProjectile;
-	}
-
 	m_pProjectiles.clear();
 }
 
 //////////////////////////////////////////////////////////////////////////////////
-void CGame::Initialize(SDL_Renderer* const pRenderer, Arkanoid::Audio::CAudioManager* pAudioManager, const char* const levelAsset)
+void CGame::Initialize(SDL_Renderer* const pRenderer, Arkanoid::Audio::CAudioManager* const pAudioManager)
 {
 	m_pRenderer = pRenderer;
 	m_pAudioManager = pAudioManager;
-	m_pBackgroundGame = IMG_LoadTexture(m_pRenderer, asset_texture_backgroundGame);
-	LoadLevel(levelAsset);
+	
+	// Init all needed textures
+	m_pBackgroundGame = std::make_unique<SCustomTexture>(IMG_LoadTexture(m_pRenderer, asset_texture_backgroundGame));
 	
 	m_player.SetTexture(m_pRenderer, asset_texture_player);
+    
+	m_font = TTF_OpenFont(asset_font_sans, 10);
+	SDL_Surface* textSurface = TTF_RenderText_Solid(m_font, "Score: ", m_textColor);
+	m_pScoreTitle = std::make_unique<SCustomTexture>(SDL_CreateTextureFromSurface(m_pRenderer, textSurface));
+	SDL_FreeSurface(textSurface);
+	
+	textSurface = TTF_RenderText_Solid(m_font, "Lives: ", m_textColor);
+	m_pPlayerLivesTitle = std::make_unique<SCustomTexture>(SDL_CreateTextureFromSurface(m_pRenderer, textSurface));
+	SDL_FreeSurface(textSurface);
+
+	//
+	LoadLevel(asset_levels[m_currentLevel]);
 
 	// TODO: This projectile construction is ugly and hard coded.
 	SDL_Rect projectilePosition = m_player.GetRenderPosition();
@@ -55,12 +51,25 @@ void CGame::Initialize(SDL_Renderer* const pRenderer, Arkanoid::Audio::CAudioMan
 	CProjectile* pProjectile = new CProjectile(projectilePosition, projectileSource);
 	pProjectile->SetTexture(m_pRenderer, asset_texture_projectile);
 	pProjectile->SetPosition(m_player.GetPosition());
-	m_pAttachedProjectiles.push_back(pProjectile);
+	m_pAttachedProjectiles.push_back(std::unique_ptr<CProjectile>(pProjectile));
 }
 
 //////////////////////////////////////////////////////////////////////////////////
 void CGame::Update(unsigned int const frameTime)
 {
+	// Level Won
+	if (m_pTiles.empty())
+	{
+		SoftReset();
+
+		if (++m_currentLevel >= g_numLevels)
+		{
+			return;
+		}
+
+		LoadLevel(asset_level02);
+	}
+
 	Input();
 	UpdateObjects(frameTime);
 	Render();
@@ -75,10 +84,54 @@ void CGame::Reset()
 void CGame::Render()
 {
 	// Background
-	SDL_RenderCopy(m_pRenderer, m_pBackgroundGame, nullptr, nullptr);
+	SDL_RenderCopy(m_pRenderer, m_pBackgroundGame->m_pTexture, nullptr, nullptr);
+
+	// UI - Score
+	unsigned int scoreDigits = 1;
+	unsigned int score = m_score;
+
+	while (score > 9)
+	{
+		score /= 10;
+		++scoreDigits;
+	}
+
+	SDL_Rect currentPosition = { 10, 3, 30, 14 };
+	SDL_RenderCopy(m_pRenderer, m_pScoreTitle->m_pTexture, nullptr, &currentPosition);
+
+	if (scoreDigits > 0)
+	{
+		SDL_Surface* textSurface = TTF_RenderText_Solid(m_font, std::to_string(m_score).c_str(), m_textColor);
+		SDL_Texture* pScore = SDL_CreateTextureFromSurface(m_pRenderer, textSurface);
+
+		currentPosition.x += currentPosition.w;
+		currentPosition.w = 6 * scoreDigits;
+
+		SDL_RenderCopy(m_pRenderer, pScore, nullptr, &currentPosition);
+
+		SDL_DestroyTexture(pScore);
+		SDL_FreeSurface(textSurface);
+	}
+
+	// UI - Lives
+	currentPosition.x = 320;
+	currentPosition.w = 30;
+
+	SDL_RenderCopy(m_pRenderer, m_pPlayerLivesTitle->m_pTexture, nullptr, &currentPosition);
+
+	SDL_Surface* textSurface = TTF_RenderText_Solid(m_font, std::to_string(m_player.GetLives()).c_str(), m_textColor);
+	SDL_Texture* pLives = SDL_CreateTextureFromSurface(m_pRenderer, textSurface);
+
+	currentPosition.x += currentPosition.w;
+	currentPosition.w = 6;
+
+	SDL_RenderCopy(m_pRenderer, pLives, nullptr, &currentPosition);
+
+	SDL_DestroyTexture(pLives);
+	SDL_FreeSurface(textSurface);
 
 	// Tiles
-	for (CTile* pTile : m_pTiles)
+	for (auto& pTile : m_pTiles)
 	{
 		SDL_RenderCopy(m_pRenderer, pTile->GetTexture(), &pTile->GetSource(), &pTile->GetRenderPosition());
 	}
@@ -86,11 +139,11 @@ void CGame::Render()
 	// Projectiles
 	if (!m_pAttachedProjectiles.empty())
 	{
-		CProjectile* pAttachedProjectile = m_pAttachedProjectiles[m_pAttachedProjectiles.size() - 1];
+		auto& pAttachedProjectile = m_pAttachedProjectiles[m_pAttachedProjectiles.size() - 1];
 		SDL_RenderCopy(m_pRenderer, pAttachedProjectile->GetTexture(), &pAttachedProjectile->GetSource(), &pAttachedProjectile->GetRenderPosition());
 	}
 	
-	for (CProjectile* pProjectile : m_pProjectiles)
+	for (auto& pProjectile : m_pProjectiles)
 	{
 		SDL_RenderCopy(m_pRenderer, pProjectile->GetTexture(), &pProjectile->GetSource(), &pProjectile->GetRenderPosition());
 	}
@@ -197,7 +250,7 @@ void CGame::Input()
 					}
 				case SDLK_ESCAPE:
 					{
-						s_gameState = EGameState::Paused;
+						s_gameState = EGameState::GameOver;
 						break;
 					}
 				default:
@@ -235,11 +288,13 @@ void CGame::SoftReset()
 	CProjectile* const pProjectile = new CProjectile(projectilePosition, projectileSource);
 	pProjectile->SetTexture(m_pRenderer, asset_texture_projectile);
 	pProjectile->SetPosition(m_player.GetPosition());
-	m_pAttachedProjectiles.push_back(pProjectile);
+	m_pAttachedProjectiles.push_back(std::unique_ptr<CProjectile>(pProjectile));
+
+	m_pProjectiles.clear();
 }
 
 //////////////////////////////////////////////////////////////////////////////////
-void CGame::LoadLevel(const char* levelPath)
+void CGame::LoadLevel(char const* levelPath)
 {
 	std::ifstream levelFile(levelPath);
 
@@ -255,10 +310,10 @@ void CGame::LoadLevel(const char* levelPath)
 				if (currentTile)
 				{
 					int const borderWidth = static_cast<int>(g_tileWidth * 0.5f);
-					CTile* const pTile = new CTile(SDL_Rect(borderWidth + index * g_tileWidth, (line + 1) * g_tileHeight, g_tileWidth, g_tileHeight), SDL_Rect(0, 0, g_tileWidth, g_tileHeight), currentTile);
+					CTile* pTile = new CTile(SDL_Rect(borderWidth + index * g_tileWidth, (line + 1) * g_tileHeight, g_tileWidth, g_tileHeight), SDL_Rect(0, 0, g_tileWidth, g_tileHeight), currentTile);
 
 					pTile->SetTexture(m_pRenderer, (currentTile < 4) ? asset_tileTextures[currentTile] : asset_tileTextures[3]);
-					m_pTiles.push_back(pTile);
+					m_pTiles.push_back(std::unique_ptr<CTile>(pTile));
 
 					m_level[line][index] = std::make_tuple(currentTile, pTile);
 				}
@@ -278,15 +333,14 @@ void CGame::UpdateProjectiles(unsigned int const frameTime)
 		// just wait for key down to start the round
 		if (m_wKeyDown)
 		{
-			CProjectile* pDetatchProjectile = m_pAttachedProjectiles.back();
+			auto& pDetatchProjectile = m_pAttachedProjectiles.back();
 			pDetatchProjectile->ReleaseFromPlayer();
-			m_pProjectiles.push_back(pDetatchProjectile);
+			m_pProjectiles.push_back(std::unique_ptr<CProjectile>(pDetatchProjectile.release()));
 			m_pAttachedProjectiles.pop_back();
 
 			m_waitForWKeyDown = true;
 			m_roundStarted = true;
 
-			// TODO: Delete. Only necessary for debugging, or if player has multiple projectiles from beginning.
 			if (!m_pAttachedProjectiles.empty())
 			{
 				Pos2D pos = m_player.GetPosition();
@@ -311,9 +365,9 @@ void CGame::UpdateProjectiles(unsigned int const frameTime)
 			// Detach
 			if (!m_waitForWKeyDown && m_wKeyDown)
 			{
-				CProjectile* pDetatchProjectile = m_pAttachedProjectiles.back();
+				auto& pDetatchProjectile = m_pAttachedProjectiles.back();
 				pDetatchProjectile->ReleaseFromPlayer();
-				m_pProjectiles.push_back(pDetatchProjectile);
+				m_pProjectiles.push_back(std::unique_ptr<CProjectile>(pDetatchProjectile.release()));
 				m_pAttachedProjectiles.pop_back();
 
 				m_waitForWKeyDown = true;
@@ -335,14 +389,14 @@ void CGame::UpdateProjectiles(unsigned int const frameTime)
 			}
 		}
 
-		// Update positions and check for collisions. This is where i keep my boilerplate for now
+		// Update positions and check for collisions. This is where I keep my boilerplate for now.
 		if (!m_pProjectiles.empty())
 		{
 			for (int i = static_cast<int>(m_pProjectiles.size() - 1); i >= 0; --i)
 			{
 				bool didCollide = false;
 
-				CProjectile* pProjectile = m_pProjectiles[i];
+				auto& pProjectile = m_pProjectiles[i];
 				pProjectile->UpdatePosition(frameTime);
 
 				SDL_Rect const& pos = pProjectile->GetRenderPosition();
@@ -350,16 +404,20 @@ void CGame::UpdateProjectiles(unsigned int const frameTime)
 				// collision with borders take precedence
 				if ((pos.y + pos.h) >= g_borderBottom)
 				{
-					delete pProjectile;
 					m_pProjectiles.erase((m_pProjectiles.begin() + i));
 
 					if (!m_player.Damage())
 					{
+						if (m_player.GetLives() == 1)
+						{
+							m_pAudioManager->SetMusic(Arkanoid::Audio::EMusic::Tension);
+						}
+
 						SoftReset();
 					}
 					else
 					{
-						m_gameRunning = false;
+						s_gameState = EGameState::GameOver;
 					}
 				}
 				else if (pos.y <= g_borderTop)
@@ -475,19 +533,22 @@ void CGame::UpdateProjectiles(unsigned int const frameTime)
 						pTile3 = std::get<1>(m_level[row1][index2]);
 					}
 
-					// TODO: this is ugly
 					if (pTile1 != nullptr && pProjectile->Collision(pTile1->GetRenderPosition(), m_pAudioManager))
 					{
 						for (int i = static_cast<int>(m_pTiles.size() - 1); i >= 0; --i)
 						{
-							if (m_pTiles[i] == pTile1)
+							if (&*m_pTiles[i] == pTile1)
 							{
 								if (pTile1->Damage(m_pRenderer))
 								{
 									m_pTiles.erase(m_pTiles.begin() + i);
-
-									delete pTile1;
 									std::get<1>(m_level[row1][index1]) = nullptr;
+
+									m_score += g_score_tileDestroyed;
+								}
+								else
+								{
+									m_score += g_score_tileDamaged;
 								}
 							
 								break;
@@ -498,14 +559,18 @@ void CGame::UpdateProjectiles(unsigned int const frameTime)
 					{
 						for (int i = static_cast<int>(m_pTiles.size() - 1); i >= 0; --i)
 						{
-							if (m_pTiles[i] == pTile2)
+							if (&*m_pTiles[i] == pTile2)
 							{
 								if (pTile2->Damage(m_pRenderer))
 								{
 									m_pTiles.erase(m_pTiles.begin() + i);
-
-									delete pTile2;
 									std::get<1>(m_level[row2][index2]) = nullptr;
+
+									m_score += g_score_tileDestroyed;
+								}
+								else
+								{
+									m_score += g_score_tileDamaged;
 								}
 								
 								break;
@@ -516,14 +581,18 @@ void CGame::UpdateProjectiles(unsigned int const frameTime)
 					{
 						for (int i = static_cast<int>(m_pTiles.size() - 1); i >= 0; --i)
 						{
-							if (m_pTiles[i] == pTile3)
+							if (&*m_pTiles[i] == pTile3)
 							{
 								if (pTile3->Damage(m_pRenderer))
 								{
 									m_pTiles.erase(m_pTiles.begin() + i);
-
-									delete pTile3;
 									std::get<1>(m_level[row2][index2]) = nullptr;
+
+									m_score += g_score_tileDestroyed;
+								}
+								else
+								{
+									m_score += g_score_tileDamaged;
 								}
 
 								break;

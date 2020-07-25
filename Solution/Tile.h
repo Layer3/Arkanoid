@@ -1,7 +1,6 @@
 #pragma once
 
 #include "RenderedObject.h"
-#include <SDL_render.h>
 
 namespace Arkanoid::Game
 {

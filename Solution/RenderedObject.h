@@ -1,7 +1,8 @@
 #pragma once
 
-#include <SDL_render.h>
-#include "Constexpr.h"
+#include "Global.h"
+#include "RenderUtil.h"
+#include <memory>
 
 namespace Arkanoid::Game
 {
@@ -9,11 +10,10 @@ class CRenderedObject
 {
 public:
 
-	CRenderedObject() = delete;
 	explicit CRenderedObject(SDL_Rect const& position, SDL_Rect const& source)
 		: m_position(position)
 		, m_source(source)
-		, m_pTexture(nullptr)
+		, m_pTexture()
 	{}
 
 	virtual ~CRenderedObject() = default;
@@ -24,13 +24,13 @@ public:
 
 	SDL_Rect const GetSource() const { return m_source; }
 
-	void               SetTexture(SDL_Renderer* const pRenderer, const char* const filePath);
-	SDL_Texture* const GetTexture() const { return m_pTexture; }
+	void               SetTexture(SDL_Renderer* const pRenderer, char const* const filePath);
+	SDL_Texture* const GetTexture() const { return (*m_pTexture).m_pTexture; }
 
 private:
 
 	SDL_Rect m_position;
 	SDL_Rect m_source;
-	SDL_Texture* m_pTexture;
+	std::unique_ptr<SCustomTexture> m_pTexture;
 };
 } // namespace Arkanoid::Game

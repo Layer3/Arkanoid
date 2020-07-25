@@ -1,7 +1,7 @@
 #pragma once
 
 #include "RenderedObject.h"
-#include "Constexpr.h"
+#include "Global.h"
 
 namespace Arkanoid::Game
 {
@@ -22,7 +22,7 @@ public:
 	void Move(unsigned int const frameTime, float const modifier);
 	Pos2D const& GetPosition() const { return m_positionXY; }
 
-	char const& Lives() const { return m_lives; }
+	char const& GetLives() const { return m_lives; }
 	bool Damage();
 
 private:

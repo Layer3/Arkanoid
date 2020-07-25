@@ -96,3 +96,25 @@ Goals for next time:
     20:30-23:00
         Refactoring the updates and gamestates and preparing basic menu.
         Cleaning up memory.
+        Tiles hp is now represented by their color.
+25.07
+    Plan for today:
+        - switch to some better memory handling with unique pointers for game objects.
+        - turn m_playingVoices to shared pointers.
+        (- maybe look into detaching the renderer from the main thread.)
+        - Main Menu Buttons and Score UI.
+        - Add looping and fadeout for the music.
+    
+    10:30 - 14:30
+        Main menu buttons are in and working, pause menu is a [STRETCHGOAL] for now. 
+        Managing most heap allocations with smart_pointers now. (This took a little longer than expected)
+    - 15:30 
+        UI is done. Bring HighScore to Main menu next.
+    15:30
+        break;
+    16:30 - 18:00
+        Dynamic music is running, implementation is a bit inconsistent with the rest of the mixer. Cleaning that up is a [STRETCHGOAL] though.
+        
+
+
+    

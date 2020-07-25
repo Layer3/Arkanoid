@@ -1,5 +1,5 @@
 #include "AudioManager.h"
-#include "Constexpr.h"
+#include "Global.h"
 #include "RenderedObject.h"
 #include <complex>
 
@@ -35,6 +35,23 @@ CAudioManager::CAudioManager()
 	m_pOutputBuffer = new Arkanoid::Audio::SAudioBuffer(m_sampleRate, m_bufferLength, m_numChannels, nullptr);
 	m_pMixer = new Arkanoid::Audio::CAudioMixer(m_sampleRate, m_bufferLength, m_numChannels);
 
+	int index = 0;
+
+	// TODO: Making this react to loading fails has a lot of possible branches or means no music at all, so this is just not allowed to fail for now, or else we crash. 
+	for (auto pFile : asset_audio_musicTracks)
+	{
+		SF_INFO sfInfo{ 0 };
+		m_pMusicFiles[index] = sf_open(pFile, SFM_READ, &sfInfo);
+		++index;
+	}
+	
+	m_pMusicVoice = new SPlayingVoice(
+		m_pMusicFiles[0],
+		2,
+		44100,
+		false,
+		Vec2D(0.0f, 0.0f));
+
 	Pa_OpenDefaultStream(
 		&m_pStream,
 		0,
@@ -54,21 +71,17 @@ CAudioManager::~CAudioManager()
 	Pa_StopStream(m_pStream); //wait for stream to have stopped so we can cleanly dealloc all used memory
 	Pa_CloseStream(m_pStream);
 
-	for (int i = static_cast<int>(m_pPlayingVoices.size() - 1); i >= 0 ; --i)
-	{
-		delete m_pPlayingVoices[i];
-		m_pPlayingVoices.pop_back();
-	}
+	m_pPlayingVoices.clear();
 
 	delete m_pOutputBuffer;
 	delete m_pMixer;
 }
 
 //////////////////////////////////////////////////////////////////////////////////
-void CAudioManager::Play(char const* filePath, bool const positioned/* = false*/, Vec2D position/* = Vec2D(0.0f, 0.0f)*/)
+SPlayingVoice* CAudioManager::Play(char const* filePath, bool const positioned/* = false*/, Vec2D position/* = Vec2D(0.0f, 0.0f)*/)
 {
 	SF_INFO sfInfo{ 0 };
-	SNDFILE* pFile = sf_open(filePath, SFM_READ, &sfInfo);
+	SNDFILE* const pFile = sf_open(filePath, SFM_READ, &sfInfo);
 	
 	if (pFile != nullptr)
 	{
@@ -80,8 +93,12 @@ void CAudioManager::Play(char const* filePath, bool const positioned/* = false*/
 				positioned,
 				position);
 
-		m_pPlayingVoices.push_back(pPlayingVoice);
+		m_pPlayingVoices.push_back(std::shared_ptr<SPlayingVoice>(pPlayingVoice));
+
+		return pPlayingVoice;
 	}
+
+	return nullptr;
 }
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -89,13 +106,34 @@ void CAudioManager::RenderAudio(void* pOutputBuffer)
 {
 	std::fill(static_cast<float*>(pOutputBuffer), static_cast<float*>(pOutputBuffer) + m_bufferLength * m_numChannels, 0.0f);
 
+	// Play music
+	{
+		m_pOutputBuffer->pData = pOutputBuffer;
+
+		if (m_playing != m_lastPlayed)
+		{
+			m_lastPlayed = m_playing;
+
+			sf_seek(m_pMusicFiles[static_cast<int>(m_playing)], 0, SF_SEEK_SET);
+
+			m_pMixer->MixFileNInN(m_pOutputBuffer, m_pMusicVoice->pFile, m_pMusicVoice->numChannels, g_musicVolume, true, true, false);                      // A flock of wild booleans appeared
+			m_pMixer->MixFileNInN(m_pOutputBuffer, m_pMusicFiles[static_cast<int>(m_playing)], m_pMusicVoice->numChannels, g_musicVolume, true, true, true); // Honestly, this feature is pretty hacked in, but my concentration is not high enough to clean this up right now so this is a TODO for now
+
+			m_pMusicVoice->pFile = m_pMusicFiles[static_cast<int>(m_playing)];
+		}
+		else
+		{
+			m_pMixer->MixFileNInN(m_pOutputBuffer, m_pMusicVoice->pFile, m_pMusicVoice->numChannels, g_musicVolume, true);
+		}
+	}
+
 	if (!m_pPlayingVoices.empty())
 	{
 		m_pOutputBuffer->pData = pOutputBuffer;
 
 		for (int i = static_cast<int>(m_pPlayingVoices.size() - 1); i >= 0; --i)
 		{
-			SPlayingVoice* pPlayingVoice = m_pPlayingVoices[i];
+			auto pPlayingVoice = m_pPlayingVoices[i];
 
 			if ((pPlayingVoice != nullptr) && (pPlayingVoice->isValid))
 			{
@@ -106,11 +144,6 @@ void CAudioManager::RenderAudio(void* pOutputBuffer)
 					float const horizontalCenter = ((static_cast<float>(Arkanoid::Game::g_borderRight) - static_cast<float>(Arkanoid::Game::g_borderLeft)) * 0.5f);
 					float const posX = (pPlayingVoice->position.x - horizontalCenter) / horizontalCenter;
 					float const posY = (static_cast<float>(Arkanoid::Game::g_borderBottom) - pPlayingVoice->position.y) / static_cast<float>(Arkanoid::Game::g_borderBottom);
-					
-					if (posY < 0)
-					{
-						bool debug = true;
-					}
 
 					float const distance = std::sqrtf(posX * posX + posY * posY);
 					float const scale = 1.0f / distance;
@@ -120,7 +153,6 @@ void CAudioManager::RenderAudio(void* pOutputBuffer)
 					
 					if (m_pMixer->MixFile1InNPositional(m_pOutputBuffer, pPlayingVoice->pFile, pPlayingVoice->numChannels, pos, distance) != m_bufferLength)
 					{
-						delete pPlayingVoice;
 						m_pPlayingVoices.erase(m_pPlayingVoices.begin() + i);
 					}
 				}
@@ -128,29 +160,26 @@ void CAudioManager::RenderAudio(void* pOutputBuffer)
 				{
 					if (m_pMixer->MixFileNInN(m_pOutputBuffer, pPlayingVoice->pFile, pPlayingVoice->numChannels) != m_bufferLength)
 					{
-						delete pPlayingVoice;
 						m_pPlayingVoices.erase(m_pPlayingVoices.begin() + i);
 					}
 				}
 			}
 			else
 			{
-				delete pPlayingVoice;
 				m_pPlayingVoices.erase(m_pPlayingVoices.begin() + i);
 			}
 		}
 	}
 }
 
-// TODO: Will implement a command queue if this crashes once.
 //////////////////////////////////////////////////////////////////////////////////
 bool CAudioManager::UpdatePosition(SPlayingVoice* pPlayingVoice_, Vec2D const& pos)
 {
 	bool success = false;
 
-	for (SPlayingVoice* pPlayingVoice : m_pPlayingVoices)
+	for (std::shared_ptr<SPlayingVoice> const& pPlayingVoice : m_pPlayingVoices)
 	{
-		if (pPlayingVoice == pPlayingVoice_ && pPlayingVoice->isValid)
+		if (&*pPlayingVoice == pPlayingVoice_ && pPlayingVoice->isValid)
 		{
 			pPlayingVoice->position.x = pos.x;
 			pPlayingVoice->position.y = pos.y;
@@ -159,5 +188,11 @@ bool CAudioManager::UpdatePosition(SPlayingVoice* pPlayingVoice_, Vec2D const& p
 	}
 
 	return success;
+}
+
+//////////////////////////////////////////////////////////////////////////////////
+void CAudioManager::SetMusic(EMusic const music)
+{
+	m_playing = music;
 }
 } //Arkanoid::Audio

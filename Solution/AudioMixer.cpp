@@ -1,5 +1,5 @@
 #include "AudioMixer.h"
-#include "Constexpr.h"
+#include "Global.h"
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <sndfile.h>
@@ -8,7 +8,7 @@
 namespace Arkanoid::Audio
 {
 //////////////////////////////////////////////////////////////////////////////////
-sf_count_t CAudioMixer::MixFileNInN(SAudioBuffer const* const pOutBuffer, SNDFILE* const pFile, int const numFileChannels)
+sf_count_t CAudioMixer::MixFileNInN(SAudioBuffer const* const pOutBuffer, SNDFILE* const pFile, int const numFileChannels, float const volume, bool const loop, bool const fade, bool const fadeIn)
 {
 	std::fill(static_cast<float*>(m_pMixBuffer->pData), static_cast<float*>(m_pMixBuffer->pData) + (m_pMixBuffer->bufferLength * m_pMixBuffer->numChannels), 0.0f);
 
@@ -22,16 +22,59 @@ sf_count_t CAudioMixer::MixFileNInN(SAudioBuffer const* const pOutBuffer, SNDFIL
 	auto pStreamBuffer = static_cast<float*>(pOutBuffer->pData);
 	auto const pMixBuffer = static_cast<float*>(m_pMixBuffer->pData);
 
-	sf_count_t const numFramesRead = sf_readf_float(pFile, pMixBuffer, requestedSamples);
+	sf_count_t numFramesRead = 0;
 
-	for (sf_count_t i = 0; i < numFramesRead; ++i)
+	numFramesRead = sf_readf_float(pFile, pMixBuffer, requestedSamples);
+
+	if(loop)
 	{
-		for (int j = 0; j < channelsToWrite; ++j)
+		while (numFramesRead != requestedSamples)
 		{
-			*pStreamBuffer++ += pMixBuffer[i * channelsToWrite + j];
+			sf_seek(pFile, 0, SF_SEEK_SET);
+			numFramesRead += sf_readf_float(pFile, (pMixBuffer + numFramesRead), (requestedSamples - numFramesRead));
 		}
+	}
 
-		pStreamBuffer += (numBufferChannels - channelsToWrite);
+	if (fade)
+	{
+		float const fadeFactor = 1.0f / static_cast<float>(requestedSamples);
+
+		if (fadeIn)
+		{
+			for (sf_count_t i = 0; i < numFramesRead; ++i)
+			{
+				for (int j = 0; j < channelsToWrite; ++j)
+				{
+					*pStreamBuffer++ += (pMixBuffer[i * channelsToWrite + j] * fadeFactor * i) * volume;
+				}
+
+				pStreamBuffer += (numBufferChannels - channelsToWrite);
+			}
+		}
+		else
+		{
+			for (sf_count_t i = 0; i < numFramesRead; ++i)
+			{
+				for (int j = 0; j < channelsToWrite; ++j)
+				{
+					*pStreamBuffer++ += (pMixBuffer[i * channelsToWrite + j] * fadeFactor * (requestedSamples - i)) * volume;
+				}
+
+				pStreamBuffer += (numBufferChannels - channelsToWrite);
+			}
+		}
+	}
+	else
+	{
+		for (sf_count_t i = 0; i < numFramesRead; ++i)
+		{
+			for (int j = 0; j < channelsToWrite; ++j)
+			{
+				*pStreamBuffer++ += pMixBuffer[i * channelsToWrite + j] * volume;
+			}
+
+			pStreamBuffer += (numBufferChannels - channelsToWrite);
+		}
 	}
 
 	return numFramesRead;

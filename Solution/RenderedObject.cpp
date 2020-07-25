@@ -11,8 +11,8 @@ void CRenderedObject::SetRenderPosition(Pos2D const& pos)
 }
 
 //////////////////////////////////////////////////////////////////////////////////
-void CRenderedObject::SetTexture(SDL_Renderer* const pRenderer, const char* const filePath)
+void CRenderedObject::SetTexture(SDL_Renderer* const pRenderer, char const* const filePath)
 {
-	m_pTexture = IMG_LoadTexture(pRenderer, filePath);
+	m_pTexture.reset(new SCustomTexture(IMG_LoadTexture(pRenderer, filePath)));
 }
 } // namespace Arkanoid::Game

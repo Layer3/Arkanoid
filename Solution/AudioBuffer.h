@@ -1,5 +1,5 @@
 #pragma once
-#include "Constexpr.h"
+#include "Global.h"
 #include <corecrt_malloc.h>
 #include <sndfile.h>
 
