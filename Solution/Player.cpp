@@ -40,4 +40,10 @@ void CPlayer::Reset()
 	SetRenderPosition( {static_cast<short>(m_positionXY.x), static_cast<short>(m_positionXY.y) });
 	m_lives = 3;
 }
+
+//////////////////////////////////////////////////////////////////////////////////
+void CPlayer::AddLives(char const lives)
+{
+	m_lives += lives;
+}
 } // Arkanoid::Game

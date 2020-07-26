@@ -68,6 +68,8 @@ void CGame::Update(unsigned int const frameTime)
 			return;
 		}
 
+		m_player.AddLives(2);
+
 		LoadLevel(asset_levels[m_currentLevel]);
 	}
 
@@ -313,7 +315,7 @@ void CGame::Input()
 					}
 				case SDLK_ESCAPE:
 					{
-						s_gameState = EGameState::Paused;
+						s_gameState = EGameState::GameOver;
 						break;
 					}
 				default:
@@ -483,6 +485,7 @@ void CGame::UpdateProjectiles(unsigned int const frameTime)
 						}
 						else
 						{
+							m_pAudioManager->SetFilterAmount(0.0f);
 							s_gameState = EGameState::GameOver;
 						}
 

@@ -174,7 +174,7 @@ namespace Arkanoid::Game
 	constexpr unsigned short g_borderTop = g_tileHeight;
 	constexpr unsigned short g_borderBottom = g_mapHeight - g_tileHeight;
 
-	constexpr float          g_playerSpeed = 200.0f;// in pixels/sec
+	constexpr float          g_playerSpeed = 320.0f;// in pixels/sec
 	constexpr unsigned short g_playerHeight = 460;
 
 	constexpr float          g_projectileSpeed = 250.0f;

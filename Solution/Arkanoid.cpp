@@ -221,7 +221,15 @@ void CArkanoid::ButtonAction()
 	{
 	case EMenuButtons::Play:
 		{
-			s_gameState = EGameState::Start;
+			if (s_gameState == EGameState::Paused)
+			{
+				s_gameState = EGameState::Playing;
+			}
+			else
+			{
+				s_gameState = EGameState::Start;
+			}
+
 			break;
 		}
 	case EMenuButtons::Quit:

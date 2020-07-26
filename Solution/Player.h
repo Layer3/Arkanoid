@@ -22,6 +22,7 @@ public:
 	void         Move(unsigned int const frameTime, float const modifier);
 	Vec2D const& GetPosition() const { return m_positionXY; }
 	char const&  GetLives() const { return m_lives; }
+	void         AddLives(char const lives);
 	bool         Damage();
 	void         Reset();
 
