@@ -130,7 +130,7 @@ void CArkanoid::Input()
 			s_gameState = EGameState::ShutDown;
 			break;
 		}
-		else if (event.type == expectedEvent)
+		else if (event.type == static_cast<Uint32>(expectedEvent))
 		{
 			switch (event.key.keysym.sym)
 			{
@@ -141,6 +141,7 @@ void CArkanoid::Input()
 					if (wDown)
 					{
 						SelectedButtonUp();
+						m_pAudioManager->Play(asset_audio_ui_buttonSwitch);
 					}
 
 					break;
@@ -152,6 +153,7 @@ void CArkanoid::Input()
 					if (sDown)
 					{
 						SelectedButtonDown();
+						m_pAudioManager->Play(asset_audio_ui_buttonSwitch);
 					}
 
 					break;
@@ -163,6 +165,7 @@ void CArkanoid::Input()
 					if (enterDown)
 					{
 						ButtonAction();
+						m_pAudioManager->Play(asset_audio_ui_buttonSelect);
 						enterDown = false;
 					}
 

@@ -126,3 +126,12 @@ Goals for next time:
 -Sanity check.
 -Get some playtesting going.
 -Call it a day.
+
+26.07
+    11:00-13:00
+        Bumped warning level to 4.
+        Cleaned up dependencies, but urctbase.dll is still being loaded by something. Did a very rough pass with DUMPBIN.
+        Dynamic collision sounds for everything (+Mario coins).
+        Panning now relative to player.
+        Bullettime is done.
+        ++SFX;

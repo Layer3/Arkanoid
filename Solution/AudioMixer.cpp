@@ -167,12 +167,12 @@ sf_count_t CAudioMixer::MixFile1InNPositional(SAudioBuffer const* const pOutBuff
 		float const volumePrimary = 0.7f + (0.25f * quadrantFinePrimary);
 		float const volumeSecondaryRight = 0.7f * (1.0f - quadrantFine);
 
-		float volumeFrontLeft;
-		float volumeFrontRight;
-		float volumeRearLeft;
-		float volumeRearRight;
-		float volumeSideLeft;
-		float volumeSideRight;
+		float volumeFrontLeft = 0.0f;
+		float volumeFrontRight = 0.0f;
+		float volumeRearLeft = 0.0f;
+		float volumeRearRight = 0.0f;
+		float volumeSideLeft = 0.0f;
+		float volumeSideRight = 0.0f;
 
 		switch (quadrant)
 		{

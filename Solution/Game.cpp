@@ -79,12 +79,23 @@ void CGame::Update(unsigned int const frameTime)
 			m_oldTimeFactor = m_timeFactor + 0.1f;
 			m_timeFactor = m_timeFactor * 0.5f;
 			m_energy = 0.0f;
+			m_pAudioManager->SetFilterAmount(1.0f);
+			m_pAudioManager->Play(asset_audio_bullettimeDrop);
 		}
 	}
 	else
 	{
 		m_timeFactor = (0.5f * m_oldTimeFactor) + (0.5f * m_energy * m_oldTimeFactor);
 		m_energy += static_cast<float>(frameTime) / 8000.0f; // take 8 seconds to refill
+		
+		if (m_energy >= 1.0f)
+		{
+			m_pAudioManager->SetFilterAmount(0.0f);
+		}
+		else
+		{
+			m_pAudioManager->SetFilterAmount(1.0f - m_energy);
+		}
 	}
 
 	Input();
@@ -127,6 +138,7 @@ void CGame::Render()
 	// UI - Score
 	unsigned int scoreDigits = 1;
 	unsigned int score = m_score;
+	score /= 10;
 
 	while (score > 9)
 	{
@@ -362,12 +374,12 @@ void CGame::LoadLevel(char const* levelPath)
 				if (currentTile)
 				{
 					int const borderWidth = static_cast<int>(g_tileWidth * 0.5f);
-					CTile* pTile = new CTile(SDL_Rect(borderWidth + index * g_tileWidth, (line + 1) * g_tileHeight, g_tileWidth, g_tileHeight), SDL_Rect(0, 0, g_tileWidth, g_tileHeight), currentTile);
+					CTile* pTile = new CTile(SDL_Rect(borderWidth + index * g_tileWidth, (line + 1) * g_tileHeight, g_tileWidth, g_tileHeight), SDL_Rect(0, 0, g_tileWidth, g_tileHeight), static_cast<char>(currentTile));
 
 					pTile->SetTexture(m_pRenderer, (currentTile < 4) ? asset_tileTextures[currentTile] : asset_tileTextures[3]);
 					m_pTiles.push_back(std::unique_ptr<CTile>(pTile));
 
-					m_level[line][index] = std::make_tuple(currentTile, pTile);
+					m_level[line][index] = std::make_tuple(static_cast<unsigned char>(currentTile), pTile);
 				}
 
 			}
@@ -444,17 +456,17 @@ void CGame::UpdateProjectiles(unsigned int const frameTime)
 		// Update positions and check for collisions. This is where I keep my boilerplate for now.
 		if (!m_pProjectiles.empty())
 		{
+			Vec2D playerPosition = m_player.GetPosition();
+
 			for (int i = static_cast<int>(m_pProjectiles.size() - 1); i >= 0; --i)
 			{
-				bool didCollide = false;
-
 				auto& pProjectile = m_pProjectiles[i];
 				pProjectile->UpdatePosition(frameTime, m_timeFactor);
 
-				SDL_Rect const& pos = pProjectile->GetRenderPosition();
+				SDL_Rect const& projectilePosition = pProjectile->GetRenderPosition();
 
 				// collision with borders take precedence
-				if ((pos.y + pos.h) >= g_borderBottom)
+				if ((projectilePosition.y + projectilePosition.h) >= g_borderBottom)
 				{
 					m_pProjectiles.erase((m_pProjectiles.begin() + i));
 
@@ -473,44 +485,47 @@ void CGame::UpdateProjectiles(unsigned int const frameTime)
 						{
 							s_gameState = EGameState::GameOver;
 						}
+
+						m_pAudioManager->Play(asset_audio_playerLoseLife, true, { static_cast<float>(projectilePosition.x - (playerPosition.x + 30.0f)), static_cast<float>(projectilePosition.y) });
 					}
 				}
-				else if (pos.y <= g_borderTop)
+				else if (projectilePosition.y <= g_borderTop)
 				{
 					Vec2D const& dir = pProjectile->GetDirection();
 					pProjectile->SetDirection(dir.x, -std::abs(dir.y));
 
-					didCollide = true;
+					m_pAudioManager->Play(asset_audio_wallImpact, true, { static_cast<float>(projectilePosition.x - (playerPosition.x + 30.0f)), static_cast<float>(projectilePosition.y) });
 				}
-				else if (pos.x <= g_borderLeft)
+				else if (projectilePosition.x <= g_borderLeft)
 				{
 					Vec2D const& dir = pProjectile->GetDirection();
 					pProjectile->SetDirection(std::abs(dir.x), dir.y);
 
-					didCollide = true;
+					m_pAudioManager->Play(asset_audio_wallImpact, true, { static_cast<float>(projectilePosition.x - (playerPosition.x + 30.0f)), static_cast<float>(projectilePosition.y) });
 				}
-				else if ((pos.x + pos.w) >= g_borderRight)
+				else if ((projectilePosition.x + projectilePosition.w) >= g_borderRight)
 				{
 					Vec2D const& dir = pProjectile->GetDirection();
 					pProjectile->SetDirection(-std::abs(dir.x), dir.y);
 
-					didCollide = true;
+					m_pAudioManager->Play(asset_audio_wallImpact, true, { static_cast<float>(projectilePosition.x - (playerPosition.x + 30.0f)), static_cast<float>(projectilePosition.y) });
 				}
-				else if ((pos.y + pos.h) >= g_playerHeight && (pos.y + pos.h) < (g_playerHeight + pos.h)) // check collisions for player and enemies
+				else if ((projectilePosition.y + projectilePosition.h) >= g_playerHeight && (projectilePosition.y + projectilePosition.h) < (g_playerHeight + projectilePosition.h)) // check collisions for player and enemies
 				{
 					SDL_Rect playerPos = m_player.GetRenderPosition();
 
-					if ((pos.x > (playerPos.x - pos.w)) && (pos.x < (playerPos.x + playerPos.w)))
+					if ((projectilePosition.x > (playerPos.x - projectilePosition.w)) && (projectilePosition.x < (playerPos.x + playerPos.w)))
 					{
 						Vec2D const& dir = pProjectile->GetDirection();
 
 						float const playerCenter = (static_cast<float>(playerPos.x) + static_cast<float>(playerPos.w) * 0.5f);
-						float const projectileCenter = (static_cast<float>(pos.x) + static_cast<float>(pos.h) * 0.5f);
+						float const projectileCenter = (static_cast<float>(projectilePosition.x) + static_cast<float>(projectilePosition.h) * 0.5f);
 						float horizontalSpeedFactor = -(playerCenter - projectileCenter) / (static_cast<float>(playerPos.w) * 0.5f);
 
 						pProjectile->SetDirection(g_projectileSpeed * horizontalSpeedFactor, std::abs(dir.y));
+						pProjectile->ResetCollisionCounter();
 
-						didCollide = true;
+						m_pAudioManager->Play(asset_audio_playerImpact, true, { static_cast<float>(projectilePosition.x - (playerPosition.x + 30.0f)), static_cast<float>(projectilePosition.y) });
 					}
 					else // TODO: Enemies
 					{
@@ -525,8 +540,8 @@ void CGame::UpdateProjectiles(unsigned int const frameTime)
 					char row1 = 0;
 					char row2 = 0;
 
-					short projectileCenterX = pos.x + (pos.w / 2);
-					short projectileCenterY = pos.y + (pos.h / 2);
+					short const projectileCenterX = static_cast<short>(projectilePosition.x + (projectilePosition.w / 2));
+					short const projectileCenterY = static_cast<short>(projectilePosition.y + (projectilePosition.h / 2));
 
 					if (dir.x > 0.0f)
 					{
@@ -588,15 +603,15 @@ void CGame::UpdateProjectiles(unsigned int const frameTime)
 						pTile3 = std::get<1>(m_level[row1][index2]);
 					}
 
-					if (pTile1 != nullptr && pProjectile->Collision(pTile1->GetRenderPosition(), m_pAudioManager))
+					if (pTile1 != nullptr && pProjectile->Collision(pTile1->GetRenderPosition()))
 					{
-						for (int i = static_cast<int>(m_pTiles.size() - 1); i >= 0; --i)
+						for (int j = static_cast<int>(m_pTiles.size() - 1); j >= 0; --j)
 						{
-							if (&*m_pTiles[i] == pTile1)
+							if (&*m_pTiles[j] == pTile1)
 							{
 								if (pTile1->Damage(m_pRenderer))
 								{
-									m_pTiles.erase(m_pTiles.begin() + i);
+									m_pTiles.erase(m_pTiles.begin() + j);
 									std::get<1>(m_level[row1][index1]) = nullptr;
 
 									m_score += g_score_tileDestroyed;
@@ -606,19 +621,22 @@ void CGame::UpdateProjectiles(unsigned int const frameTime)
 									m_score += g_score_tileDamaged;
 								}
 							
+								m_pAudioManager->Play(asset_audio_tileCollisions[pProjectile->GetCollisionCount()], true, { static_cast<float>(projectilePosition.x - (playerPosition.x + 30.0f)), static_cast<float>(projectilePosition.y) });
+								pProjectile->IncrementCollisionCounter();
+
 								break;
 							}
 						}
 					}
-					else if (pTile2 != nullptr && pProjectile->Collision(pTile2->GetRenderPosition(), m_pAudioManager))
+					else if (pTile2 != nullptr && pProjectile->Collision(pTile2->GetRenderPosition()))
 					{
-						for (int i = static_cast<int>(m_pTiles.size() - 1); i >= 0; --i)
+						for (int j = static_cast<int>(m_pTiles.size() - 1); j >= 0; --j)
 						{
-							if (&*m_pTiles[i] == pTile2)
+							if (&*m_pTiles[j] == pTile2)
 							{
 								if (pTile2->Damage(m_pRenderer))
 								{
-									m_pTiles.erase(m_pTiles.begin() + i);
+									m_pTiles.erase(m_pTiles.begin() + j);
 									std::get<1>(m_level[row2][index2]) = nullptr;
 
 									m_score += g_score_tileDestroyed;
@@ -628,19 +646,22 @@ void CGame::UpdateProjectiles(unsigned int const frameTime)
 									m_score += g_score_tileDamaged;
 								}
 								
+								m_pAudioManager->Play(asset_audio_tileCollisions[pProjectile->GetCollisionCount()], true, { static_cast<float>(projectilePosition.x - (playerPosition.x + 30.0f)), static_cast<float>(projectilePosition.y) });
+								pProjectile->IncrementCollisionCounter();
+
 								break;
 							}
 						}
 					}
-					else if (pTile3 != nullptr && pProjectile->Collision(pTile3->GetRenderPosition(), m_pAudioManager))
+					else if (pTile3 != nullptr && pProjectile->Collision(pTile3->GetRenderPosition()))
 					{
-						for (int i = static_cast<int>(m_pTiles.size() - 1); i >= 0; --i)
+						for (int j = static_cast<int>(m_pTiles.size() - 1); j >= 0; --j)
 						{
-							if (&*m_pTiles[i] == pTile3)
+							if (&*m_pTiles[j] == pTile3)
 							{
 								if (pTile3->Damage(m_pRenderer))
 								{
-									m_pTiles.erase(m_pTiles.begin() + i);
+									m_pTiles.erase(m_pTiles.begin() + j);
 									std::get<1>(m_level[row2][index2]) = nullptr;
 
 									m_score += g_score_tileDestroyed;
@@ -650,15 +671,13 @@ void CGame::UpdateProjectiles(unsigned int const frameTime)
 									m_score += g_score_tileDamaged;
 								}
 
+								m_pAudioManager->Play(asset_audio_tileCollisions[pProjectile->GetCollisionCount()], true, { static_cast<float>(projectilePosition.x - (playerPosition.x + 30.0f)), static_cast<float>(projectilePosition.y) });
+								pProjectile->IncrementCollisionCounter();
+
 								break;
 							}
 						}
 					}
-				}
-
-				if (didCollide)
-				{
-					m_pAudioManager->Play(asset_audio_projectileCollision1, true, { static_cast<float>(pos.x), static_cast<float>(pos.y) });
 				}
 			}
 		}

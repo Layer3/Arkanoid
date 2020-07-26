@@ -6,3 +6,4 @@ xcopy /s /y RuntimeLibs\x64\libfreetype-6.dll %1
 xcopy /s /y RuntimeLibs\x64\zlib1.dll %1
 xcopy /s /y RuntimeLibs\x64\portaudio_x64.dll %1
 xcopy /s /y RuntimeLibs\x64\libsndfile-1.dll %1
+xcopy /s /y RuntimeLibs\x64\ucrtbased.dll %1

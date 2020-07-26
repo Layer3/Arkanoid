@@ -16,7 +16,7 @@ enum class EGameState
 
 extern EGameState s_gameState;
 
-constexpr float          g_musicVolume = 0.1f;
+constexpr float          g_musicVolume = 0.05f;
 
 constexpr unsigned short g_mapWidth = 400;
 constexpr unsigned short g_mapHeight = 500;
@@ -27,6 +27,8 @@ constexpr unsigned char  g_numMenuButtons = 2;
 
 constexpr unsigned int   g_targetFPS = 100;
 constexpr unsigned int   g_targetFrameTime = 1000 / g_targetFPS;
+
+constexpr int const      g_numCollisionSounds = 10;
 
 // Levels
 constexpr unsigned char const g_numLevels = 3;
@@ -71,8 +73,37 @@ constexpr char const* asset_tileTextures[4]
 constexpr char const* asset_audio_ui_buttonSwitch = "../../../Assets/Audio/UIButtonSelect.wav";
 constexpr char const* asset_audio_ui_buttonSelect = "../../../Assets/Audio/UIButtonSwitch.wav";
 
-constexpr char const* asset_audio_projectileCollision1 = "../../../Assets/Audio/ProjectileCollision1.wav";
-constexpr char const* asset_audio_tileDestroy = "../../../Assets/Audio/TileDestroy.wav";
+constexpr char const* asset_audio_tileCollision01 = "../../../Assets/Audio/Arkanoid_Impact_Counter_01.wav";
+constexpr char const* asset_audio_tileCollision02 = "../../../Assets/Audio/Arkanoid_Impact_Counter_02.wav";
+constexpr char const* asset_audio_tileCollision03 = "../../../Assets/Audio/Arkanoid_Impact_Counter_03.wav";
+constexpr char const* asset_audio_tileCollision04 = "../../../Assets/Audio/Arkanoid_Impact_Counter_04.wav";
+constexpr char const* asset_audio_tileCollision05 = "../../../Assets/Audio/Arkanoid_Impact_Counter_05.wav";
+constexpr char const* asset_audio_tileCollision06 = "../../../Assets/Audio/Arkanoid_Impact_Counter_06.wav";
+constexpr char const* asset_audio_tileCollision07 = "../../../Assets/Audio/Arkanoid_Impact_Counter_07.wav";
+constexpr char const* asset_audio_tileCollision08 = "../../../Assets/Audio/Arkanoid_Impact_Counter_08.wav";
+constexpr char const* asset_audio_tileCollision09 = "../../../Assets/Audio/Arkanoid_Impact_Counter_09.wav";
+constexpr char const* asset_audio_tileCollision10 = "../../../Assets/Audio/Arkanoid_Impact_Counter_10.wav";
+constexpr char const* asset_audio_wallImpact = "../../../Assets/Audio/Arkanoid_Impact_01.wav";
+constexpr char const* asset_audio_playerImpact = "../../../Assets/Audio/Arkanoid_Impact_Player_01.wav";
+
+constexpr char const* asset_audio_bullettimeDrop = "../../../Assets/Audio/Arkanoid_Bullettime_Drop_01.wav";
+
+constexpr char const* asset_audio_playerLoseLife = "../../../Assets/Audio/Arkanoid_Lose_Life_01.wav";
+
+constexpr char const* asset_audio_tileCollisions[g_numCollisionSounds]
+{
+	asset_audio_tileCollision01,
+	asset_audio_tileCollision02,
+	asset_audio_tileCollision03,
+	asset_audio_tileCollision04,
+	asset_audio_tileCollision05,
+	asset_audio_tileCollision06,
+	asset_audio_tileCollision07,
+	asset_audio_tileCollision08,
+	asset_audio_tileCollision09,
+	asset_audio_tileCollision10
+};
+
 
 constexpr char const* asset_audio_musicMenu = "../../../Assets/Audio/Music_menu.wav";
 constexpr char const* asset_audio_musicGameTension = "../../../Assets/Audio/Music_game_tension.wav";

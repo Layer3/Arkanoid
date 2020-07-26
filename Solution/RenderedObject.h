@@ -18,11 +18,11 @@ public:
 
 	virtual ~CRenderedObject() = default;
 
-	SDL_Rect const GetRenderPosition() const { return m_position; }
-	void           SetRenderPosition(Pos2D const& pos);
-	void           SetRenderPostitionX(int const& x) { m_position.x = x; } // convenience for player
+	SDL_Rect const& GetRenderPosition() const { return m_position; }
+	void			SetRenderPosition(Pos2D const& pos);
+	void			SetRenderPostitionX(int const& x) { m_position.x = x; } // convenience for player
 
-	SDL_Rect const GetSource() const { return m_source; }
+	SDL_Rect const& GetSource() const { return m_source; }
 
 	void               SetTexture(SDL_Renderer* const pRenderer, char const* const filePath);
 	SDL_Texture* const GetTexture() const { return (*m_pTexture).m_pTexture; }

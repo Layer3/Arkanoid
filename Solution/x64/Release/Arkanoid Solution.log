@@ -1,0 +1,23 @@
+﻿  Game.cpp
+  Generating code
+  1 of 883 functions ( 0.1%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    1 functions had inline decision re-evaluated but remain unchanged
+  Finished generating code
+  Arkanoid Solution.vcxproj -> C:\Users\L.Keil\Desktop\Arkanoid\Solution\..\Arkanoid\bin\x64\Release\Arkanoid.exe
+  RuntimeLibs\x64\SDL2.dll
+  1 File(s) copied
+  RuntimeLibs\x64\SDL2_image.dll
+  1 File(s) copied
+  RuntimeLibs\x64\libpng16-16.dll
+  1 File(s) copied
+  RuntimeLibs\x64\SDL2_ttf.dll
+  1 File(s) copied
+  RuntimeLibs\x64\libfreetype-6.dll
+  1 File(s) copied
+  RuntimeLibs\x64\zlib1.dll
+  1 File(s) copied
+  RuntimeLibs\x64\portaudio_x64.dll
+  1 File(s) copied
+  RuntimeLibs\x64\libsndfile-1.dll
+  1 File(s) copied

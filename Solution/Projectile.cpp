@@ -23,11 +23,11 @@ void CProjectile::ReleaseFromPlayer()
 }
 
 //////////////////////////////////////////////////////////////////////////////////
-bool CProjectile::Collision(SDL_Rect const& rect, Arkanoid::Audio::CAudioManager* pAudioManager)
+bool CProjectile::Collision(SDL_Rect const& rect)
 {
 	SDL_Rect projRect = GetRenderPosition();
-	short const projectileCenterX = projRect.x + (projRect.w / 2);
-	short const projectileCenterY = projRect.y + (projRect.h / 2);
+	short const projectileCenterX = static_cast<short>(projRect.x + (projRect.w / 2));
+	short const projectileCenterY = static_cast<short>(projRect.y + (projRect.h / 2));
 
 	bool collisionValid = false;
 
@@ -82,11 +82,6 @@ bool CProjectile::Collision(SDL_Rect const& rect, Arkanoid::Audio::CAudioManager
 		}
 	}
 
-	if (collisionValid)
-	{
-		pAudioManager->Play(asset_audio_tileDestroy, true, { static_cast<float>(projRect.x), static_cast<float>(projRect.y) });
-	}
-
 	return collisionValid;
 }
 
@@ -98,6 +93,15 @@ void CProjectile::UpdatePosition(unsigned int const frameTime, float const modif
 	m_position.y -= frameMovementFactor * m_directionXY.y; // positive y is down
 
 	SetRenderPosition(Pos2D{ static_cast<short>(m_position.x), static_cast<short>(m_position.y) });
+}
+
+//////////////////////////////////////////////////////////////////////////////////
+void CProjectile::IncrementCollisionCounter()
+{
+	if (++m_collisionCount >= g_numCollisionSounds)
+	{
+		m_collisionCount = (g_numCollisionSounds - 1);
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////

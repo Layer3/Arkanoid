@@ -20,6 +20,11 @@ static int StreamCallback(
 	{
 		pAudioManager->RenderAudio(pOutputBuffer);
 
+		if (pAudioManager->ShouldFilter())
+		{
+			pAudioManager->FilterBuffer(pOutputBuffer);
+		}
+
 		return PaStreamCallbackResult::paContinue;
 	}
 
@@ -36,6 +41,13 @@ CAudioManager::CAudioManager()
 	m_pMixer = new Arkanoid::Audio::CAudioMixer(m_sampleRate, m_bufferLength, m_numChannels);
 
 	int index = 0;
+
+	for (auto& pFilter : m_pFilters)
+	{
+		pFilter = new CBiquadFilter(EBiquadType::Lowpass, m_sampleRate);
+
+		pFilter->ComputeCoefficients(20000, 1.0f, 0.0f);
+	}
 
 	// TODO: Making this react to loading fails has a lot of possible branches or means no music at all, so this is just not allowed to fail for now, or else we crash. 
 	for (auto pFile : asset_audio_musicTracks)
@@ -73,6 +85,11 @@ CAudioManager::~CAudioManager()
 
 	m_pPlayingVoices.clear();
 
+	for (auto& pFilter : m_pFilters)
+	{
+		delete pFilter;
+	}
+
 	delete m_pOutputBuffer;
 	delete m_pMixer;
 }
@@ -88,8 +105,8 @@ SPlayingVoice* CAudioManager::Play(char const* filePath, bool const positioned/*
 		SPlayingVoice* pPlayingVoice =
 			new SPlayingVoice(
 				pFile,
-				sfInfo.channels,
-				sfInfo.samplerate,
+				static_cast<unsigned char const>(sfInfo.channels),
+				static_cast<unsigned short const>(sfInfo.samplerate),
 				positioned,
 				position);
 
@@ -99,6 +116,79 @@ SPlayingVoice* CAudioManager::Play(char const* filePath, bool const positioned/*
 	}
 
 	return nullptr;
+}
+
+//////////////////////////////////////////////////////////////////////////////////
+bool CAudioManager::ShouldFilter()
+{
+	return (m_filterAmount != 0.0f);
+}
+
+//////////////////////////////////////////////////////////////////////////////////
+void CAudioManager::FilterBuffer(void* pOutputBuffer)
+{
+	float const filterAmount = m_filterAmount.load();
+	m_filterSwitch = !m_filterSwitch;
+
+	CBiquadFilter* pFilterDominantL = nullptr;
+	CBiquadFilter* pFilterDominantR = nullptr;
+	CBiquadFilter* pFilterResidualL = nullptr;
+	CBiquadFilter* pFilterResidualR = nullptr;
+
+	if (m_filterSwitch)
+	{
+		pFilterDominantL = m_pFilters[0];
+		pFilterDominantR = m_pFilters[1];
+
+		pFilterResidualL = m_pFilters[2];
+		pFilterResidualR = m_pFilters[3];
+	}
+	else
+	{
+		pFilterDominantL = m_pFilters[2];
+		pFilterDominantR = m_pFilters[3];
+
+		pFilterResidualL = m_pFilters[0];
+		pFilterResidualR = m_pFilters[1];
+	}
+
+	float* pBuffer = static_cast<float*>(pOutputBuffer);
+
+	// We are only filtering two channels L/R, even though the rest of the audio system works with surround theoretically.
+	if (m_oldFilterAmount != m_filterAmount) // fade
+	{
+		pFilterDominantL->ComputeCoefficients(20000 - static_cast<int>(19500 * m_filterAmount), 1.0f, 0.0f);
+		pFilterDominantR->ComputeCoefficients(20000 - static_cast<int>(19500 * m_filterAmount), 1.0f, 0.0f);
+
+		float const fadeFactor = 1.0f / static_cast<float>(m_bufferLength);
+
+		for (int i = 0; i < m_bufferLength; ++i)
+		{
+			*(pBuffer)++ = ((i * fadeFactor) * pFilterDominantL->ProcessSample(*pBuffer)) + ((1.0f - (i * fadeFactor)) * pFilterResidualL->ProcessSample(*pBuffer));
+			*(pBuffer)++ = ((i * fadeFactor) * pFilterDominantR->ProcessSample(*pBuffer)) + ((1.0f - (i * fadeFactor)) * pFilterResidualR->ProcessSample(*pBuffer));
+
+			pBuffer += (m_numChannels - 2);
+		}
+	}
+	else
+	{
+		for (int i = 0; i < m_bufferLength; ++i)
+		{
+			*(pBuffer)++ = pFilterDominantL->ProcessSample(*pBuffer);
+			*(pBuffer)++ = pFilterDominantR->ProcessSample(*pBuffer);
+
+			pBuffer += (m_numChannels - 2);
+		}
+	}
+
+
+	m_oldFilterAmount = m_filterAmount;
+}
+
+//////////////////////////////////////////////////////////////////////////////////
+void CAudioManager::SetFilterAmount(float const amount)
+{
+	m_filterAmount.store(amount);
 }
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -117,7 +207,7 @@ void CAudioManager::RenderAudio(void* pOutputBuffer)
 			sf_seek(m_pMusicFiles[static_cast<int>(m_playing)], 0, SF_SEEK_SET);
 
 			m_pMixer->MixFileNInN(m_pOutputBuffer, m_pMusicVoice->pFile, m_pMusicVoice->numChannels, g_musicVolume, true, true, false);                      // A flock of wild booleans appeared
-			m_pMixer->MixFileNInN(m_pOutputBuffer, m_pMusicFiles[static_cast<int>(m_playing)], m_pMusicVoice->numChannels, g_musicVolume, true, true, true); // Honestly, this feature is pretty hacked in, but my concentration is not high enough to clean this up right now so this is a TODO for now
+			m_pMixer->MixFileNInN(m_pOutputBuffer, m_pMusicFiles[static_cast<int>(m_playing)], m_pMusicVoice->numChannels, g_musicVolume, true, true, true); // This feature is a bit hacky, but will stay as is.
 
 			m_pMusicVoice->pFile = m_pMusicFiles[static_cast<int>(m_playing)];
 		}
@@ -137,12 +227,10 @@ void CAudioManager::RenderAudio(void* pOutputBuffer)
 
 			if ((pPlayingVoice != nullptr) && (pPlayingVoice->isValid))
 			{
-				float attenuation = 0.0f;
-
 				if (pPlayingVoice->positioned)
 				{
 					float const horizontalCenter = ((static_cast<float>(Arkanoid::Game::g_borderRight) - static_cast<float>(Arkanoid::Game::g_borderLeft)) * 0.5f);
-					float const posX = (pPlayingVoice->position.x - horizontalCenter) / horizontalCenter;
+					float const posX = (pPlayingVoice->position.x) / horizontalCenter;
 					float const posY = (static_cast<float>(Arkanoid::Game::g_borderBottom) - pPlayingVoice->position.y) / static_cast<float>(Arkanoid::Game::g_borderBottom);
 
 					float const distance = std::sqrtf(posX * posX + posY * posY);

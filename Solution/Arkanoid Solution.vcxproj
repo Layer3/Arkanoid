@@ -135,8 +135,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\libsndfile\lib\;..\PortAudio\portaudio\build\msvc\x64\Release\;..\SDL2-2.0.12\lib\x64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;portaudio_x64.lib;libsndfile-1.lib;SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\libsndfile\lib\;..\PortAudio\portaudio\build\msvc\x64\ReleaseMinDependency\;..\SDL2-2.0.12\lib\x64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_ttf.lib;portaudio_x64.lib;libsndfile-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>CopyRuntimeLibs.bat "$(SolutionDir)..\Arkanoid\bin\$(Platform)\$(Configuration)\"</Command>
@@ -144,7 +144,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
@@ -153,14 +153,15 @@
       <AdditionalIncludeDirectories>..\libsndfile\include;..\PortAudio\portaudio\include;..\SDL2-2.0.12\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\libsndfile\lib\;..\PortAudio\portaudio\build\msvc\x64\Release\;..\SDL2-2.0.12\lib\x64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;portaudio_x64.lib;libsndfile-1.lib;SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\libsndfile\lib\;..\PortAudio\portaudio\build\msvc\x64\ReleaseMinDependency\;..\SDL2-2.0.12\lib\x64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_ttf.lib;portaudio_x64.lib;libsndfile-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>CopyRuntimeLibs.bat "$(SolutionDir)..\Arkanoid\bin\$(Platform)\$(Configuration)\"</Command>
@@ -169,6 +170,7 @@
   <ItemGroup>
     <ClCompile Include="Arkanoid.cpp" />
     <ClCompile Include="AudioManager.cpp" />
+    <ClCompile Include="BiquadFilter.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Player.cpp" />
@@ -181,6 +183,7 @@
     <ClInclude Include="Arkanoid.h" />
     <ClInclude Include="AudioBuffer.h" />
     <ClInclude Include="AudioManager.h" />
+    <ClInclude Include="BiquadFilter.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="PlayingVoice.h" />
