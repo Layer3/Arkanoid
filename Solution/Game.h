@@ -32,12 +32,10 @@ public:
 private:
 
 	void LoadLevel(char const* levelPath);
-
 	void Input();
 	void Render();
 	void UpdateObjects(unsigned int const frameTime);
 	void UpdateProjectiles(unsigned int const frameTime);
-
 	void SoftReset();
 
 	SDL_Renderer*                   m_pRenderer = nullptr;
@@ -69,9 +67,7 @@ private:
 	bool          m_sKeyDown = false;
 	bool          m_waitForWKeyUp = false;
 	bool          m_waitForSKeyUp = false;
-	
 	bool          m_roundStarted = false;
-
 	CPlayer       m_player;
 };
 } // Arkanoid::Game

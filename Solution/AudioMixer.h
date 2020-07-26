@@ -5,6 +5,8 @@
 
 namespace Arkanoid::Audio
 {
+struct SAudioBuffer;
+
 class CAudioMixer
 {
 public:

@@ -1,11 +1,9 @@
 #pragma once
 #include "Global.h"
-#include <corecrt_malloc.h>
-#include <sndfile.h>
 
 namespace Arkanoid::Audio
 {
-struct SAudioBuffer
+struct SAudioBuffer final
 {
 	SAudioBuffer() = delete;
 

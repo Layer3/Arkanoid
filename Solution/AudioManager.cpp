@@ -1,4 +1,5 @@
 #include "AudioManager.h"
+#include "BiquadFilter.h"
 #include "Global.h"
 #include "RenderedObject.h"
 #include <complex>
@@ -44,12 +45,12 @@ CAudioManager::CAudioManager()
 
 	for (auto& pFilter : m_pFilters)
 	{
-		pFilter = new CBiquadFilter(EBiquadType::Lowpass, m_sampleRate);
+		pFilter = new CBiquadFilter(EBiquadType::Lowpass, static_cast<float>(m_sampleRate));
 
 		pFilter->ComputeCoefficients(20000, 1.0f, 0.0f);
 	}
 
-	// TODO: Making this react to loading fails has a lot of possible branches or means no music at all, so this is just not allowed to fail for now, or else we crash. 
+	// TODO: Making this react to loading fails has a lot of possible branches or means no music at all, so this is just not allowed to fail for now, or else we crash later on while playing. 
 	for (auto pFile : asset_audio_musicTracks)
 	{
 		SF_INFO sfInfo{ 0 };
@@ -180,7 +181,6 @@ void CAudioManager::FilterBuffer(void* pOutputBuffer)
 			pBuffer += (m_numChannels - 2);
 		}
 	}
-
 
 	m_oldFilterAmount = m_filterAmount;
 }

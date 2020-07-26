@@ -1,6 +1,7 @@
 #pragma once
 #include <SDL_render.h>
 
+// intentionally global
 struct SCustomTexture
 {
 	SCustomTexture()

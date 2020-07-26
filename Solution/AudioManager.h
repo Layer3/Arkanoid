@@ -1,12 +1,13 @@
 #pragma once
 #include "AudioMixer.h"
-#include "BiquadFilter.h"
 #include "PlayingVoice.h"
 #include <portaudio.h>
 #include <vector>
 
 namespace Arkanoid::Audio
 {
+class CBiquadFilter;
+
 enum class EMusic
 {
 	Menu,

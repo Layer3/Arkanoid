@@ -37,7 +37,7 @@ void CGame::Initialize(SDL_Renderer* const pRenderer, Arkanoid::Audio::CAudioMan
 	m_pPlayerLivesTitle = std::make_unique<SCustomTexture>(SDL_CreateTextureFromSurface(m_pRenderer, textSurface));
 	SDL_FreeSurface(textSurface);
 
-	//
+	// No comment, but a visual divider.
 	LoadLevel(asset_levels[m_currentLevel]);
 
 	// TODO: This projectile construction is ugly and hard coded.
@@ -63,12 +63,16 @@ void CGame::Update(unsigned int const frameTime)
 	{
 		SoftReset();
 
+		// When the last level is beat this overflows and adds as many projectiles to the player in attached form as it took to overflow.
+		// It's a rough bug and shouldn't be allowed to exist, but it's fun.
+		// Have fun with NewGame+.
 		if (++m_currentLevel >= g_numLevels)
 		{
 			return;
 		}
 
 		m_player.AddLives(2);
+		m_pAudioManager->SetMusic(Arkanoid::Audio::EMusic::Game);
 
 		LoadLevel(asset_levels[m_currentLevel]);
 	}
@@ -178,7 +182,6 @@ void CGame::Render()
 	currentPosition.w = 6;
 
 	SDL_RenderCopy(m_pRenderer, pLives, nullptr, &currentPosition);
-
 	SDL_DestroyTexture(pLives);
 	SDL_FreeSurface(textSurface);
 
@@ -315,7 +318,8 @@ void CGame::Input()
 					}
 				case SDLK_ESCAPE:
 					{
-						s_gameState = EGameState::GameOver;
+						m_pAudioManager->SetFilterAmount(0.0f);
+						s_gameState = EGameState::Paused;
 						break;
 					}
 				default:

@@ -15,7 +15,7 @@ enum class EMenuButtons
 	Quit,
 };
 
-class CArkanoid
+class CArkanoid final
 {
 public:
 
@@ -42,7 +42,6 @@ private:
 
 	unsigned int m_lastFrameTime = 0;
 	unsigned int m_currentFrameTime = 0;
-
 	unsigned int m_highScore = 0;
 
 	// Menu specifics

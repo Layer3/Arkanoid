@@ -1,8 +1,6 @@
 #include "AudioMixer.h"
-#include "Global.h"
 #define _USE_MATH_DEFINES
 #include <math.h>
-#include <sndfile.h>
 #include <xutility>
 
 namespace Arkanoid::Audio
@@ -23,7 +21,6 @@ sf_count_t CAudioMixer::MixFileNInN(SAudioBuffer const* const pOutBuffer, SNDFIL
 	auto const pMixBuffer = static_cast<float*>(m_pMixBuffer->pData);
 
 	sf_count_t numFramesRead = 0;
-
 	numFramesRead = sf_readf_float(pFile, pMixBuffer, requestedSamples);
 
 	if(loop)

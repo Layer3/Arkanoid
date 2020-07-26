@@ -20,7 +20,7 @@ public:
 
 	CBiquadFilter() = delete;
 
-	CBiquadFilter(EBiquadType const filtertype, float const sampleRate)
+	explicit CBiquadFilter(EBiquadType const filtertype, float const sampleRate)
 		: m_sampleRate(sampleRate)
 		, m_filterType(filtertype)
 		, m_lastSample1(0.0f)

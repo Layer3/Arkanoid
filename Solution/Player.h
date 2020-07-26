@@ -1,5 +1,4 @@
 #pragma once
-
 #include "RenderedObject.h"
 #include "Global.h"
 
@@ -9,7 +8,6 @@ class CPlayer final : public CRenderedObject
 {
 public:
 
-	// TODO: Construction is ugly
 	CPlayer()
 		: CRenderedObject(SDL_Rect(Arkanoid::g_mapWidth / 2, Arkanoid::g_mapHeight - (Arkanoid::Game::g_tileHeight * 2), 60, 20), SDL_Rect(0, 0, 60, 20)) // create player one tile-height above bottom border and in center
 		, m_positionXY{ static_cast<float>(Arkanoid::g_mapWidth / 2), static_cast<float>(Arkanoid::g_mapHeight - (Arkanoid::Game::g_tileHeight * 2)) }

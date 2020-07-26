@@ -1,5 +1,4 @@
 #pragma once
-
 #include "RenderedObject.h"
 
 namespace Arkanoid::Game

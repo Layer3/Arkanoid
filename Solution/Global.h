@@ -40,7 +40,8 @@ constexpr char const* asset_level03 = "../../../Assets/Levels/3.level";
 constexpr char const* asset_levels[g_numLevels]
 {
 	asset_level01,
-	asset_level02
+	asset_level02,
+	asset_level03
 };
 
 // Font

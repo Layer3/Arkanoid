@@ -4,7 +4,6 @@
 #include <SDL_image.h>
 #include <SDL_ttf.h>
 #include <portaudio.h>
-#include <iostream>
 #include <string>
 
 namespace Arkanoid
@@ -73,7 +72,6 @@ void CArkanoid::MainLoop()
 		case EGameState::Start:
 			{
 				m_game.Initialize(m_pRenderer, m_pAudioManager);
-
 				m_pAudioManager->SetMusic(Audio::EMusic::Game);
 				s_gameState = EGameState::Playing;
 				break;
@@ -91,9 +89,7 @@ void CArkanoid::MainLoop()
 				}
 
 				m_game.Reset();
-
 				m_pAudioManager->SetMusic(Audio::EMusic::Menu);
-
 				s_gameState = EGameState::Menu;
 				break;
 			}
@@ -302,7 +298,6 @@ void CArkanoid::RenderMenu()
 void CArkanoid::Shutdown()
 {
 	delete m_pAudioManager;
-
 	Pa_Terminate();
 	TTF_Quit();
 	IMG_Quit();
