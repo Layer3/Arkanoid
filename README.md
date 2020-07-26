@@ -2,12 +2,16 @@
  A small 2D game with audio
 
 Controls
+
   Menu
+  
 	W - up
 	S - Down
 	Enter - Select
+	Escape - Quit
 
   Game
+  
 	W - Release Projectile
 	S - Bullettime
 	A - Left
