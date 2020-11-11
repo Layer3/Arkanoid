@@ -127,9 +127,9 @@ void CBiquadFilter::ComputeCoefficients(int const frequency, float const quality
 			double const x1 = sqrt(2.0 * factorV) * factorK;
 			double const x2 = M_SQRT2 * factorK;
 			double const norm = 1.0 / (factorV + x1 + factorKSpuare);
-			m_coefficientA0 = static_cast<float>((1.0 + x1 + factorKSpuare) * norm);
+			m_coefficientA0 = static_cast<float>((1.0 + x2 + factorKSpuare) * norm);
 			m_coefficientA1 = static_cast<float>(2.0 * (factorKSpuare - 1.0) * norm);
-			m_coefficientA2 = static_cast<float>((1.0 - x1 + factorKSpuare) * norm);
+			m_coefficientA2 = static_cast<float>((1.0 - x2 + factorKSpuare) * norm);
 			m_coefficientB0 = static_cast<float>(2.0 * (factorKSpuare - factorV) * norm);
 			m_coefficientB1 = static_cast<float>((factorV - x1 + factorKSpuare) * norm);
 		}
